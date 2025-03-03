@@ -9,6 +9,9 @@ import {
 } from './types';
 import { queryClient } from './queryClient';
 
+// שמירת הקישור הנוכחי לגיליון גוגל
+let currentSheetUrl: string | null = null;
+
 // Generic function to fetch data from Google Sheets via our proxy server
 export const fetchFromGoogleSheets = async (sheetName: string, customSheetUrl: string | null = null): Promise<any[]> => {
   try {
@@ -17,8 +20,14 @@ export const fetchFromGoogleSheets = async (sheetName: string, customSheetUrl: s
     
     // Create headers object with custom sheet URL if provided
     const headers: HeadersInit = {};
+    
+    // אם נשלח קישור מותאם אישית, השתמש בו
     if (customSheetUrl) {
       headers['x-sheet-url'] = customSheetUrl;
+    } 
+    // אחרת, השתמש בקישור השמור הגלובלי אם קיים
+    else if (currentSheetUrl) {
+      headers['x-sheet-url'] = currentSheetUrl;
     }
     
     const response = await fetch(url, { headers });
