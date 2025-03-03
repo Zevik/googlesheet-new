@@ -10,6 +10,7 @@ interface ContentBlockProps {
 const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
   switch (block.content_type) {
     case 'title':
+    case 'כותרת':
       return (
         <Card className="bg-white rounded-lg shadow-sm">
           <CardContent className="p-6">
@@ -19,6 +20,7 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
       );
 
     case 'text':
+    case 'טקסט':
       return (
         <Card className="bg-white rounded-lg shadow-sm">
           <CardContent className="p-6">
@@ -31,6 +33,7 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
       );
 
     case 'image':
+    case 'תמונה':
       return (
         <Card className="bg-white rounded-lg shadow-sm">
           <CardContent className="p-6">
@@ -54,6 +57,7 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
       );
 
     case 'youtube':
+    case 'יוטיוב':
       return (
         <Card className="bg-white rounded-lg shadow-sm">
           <CardContent className="p-6">
@@ -79,6 +83,7 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
       );
 
     case 'link':
+    case 'קישור':
       return (
         <Card className="bg-white rounded-lg shadow-sm">
           <CardContent className="p-6">
@@ -103,6 +108,7 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
       );
 
     case 'list':
+    case 'רשימה':
       return (
         <Card className="bg-white rounded-lg shadow-sm">
           <CardContent className="p-6">
@@ -121,6 +127,7 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
       );
 
     case 'table':
+    case 'טבלה':
       // Parse table content
       // Assuming the content is in CSV or similar format
       const rows = block.content.split('\n').map(row => row.split(','));
@@ -168,6 +175,7 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
       );
 
     case 'separator':
+    case 'מפריד':
       return (
         <div className="p-2">
           <Separator className="border-neutral-200" />
@@ -175,6 +183,7 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
       );
 
     case 'file':
+    case 'קובץ':
       return (
         <Card className="bg-white rounded-lg shadow-sm">
           <CardContent className="p-6">

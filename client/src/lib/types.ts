@@ -47,15 +47,15 @@ export interface Template {
 
 // Content type enum
 export type ContentType = 
-  | 'text' 
-  | 'title' 
-  | 'image' 
-  | 'youtube' 
-  | 'link' 
-  | 'list' 
-  | 'table' 
-  | 'separator' 
-  | 'file';
+  | 'text' | 'טקסט'
+  | 'title' | 'כותרת'
+  | 'image' | 'תמונה'
+  | 'youtube' | 'יוטיוב'
+  | 'link' | 'קישור'
+  | 'list' | 'רשימה'
+  | 'table' | 'טבלה'
+  | 'separator' | 'מפריד'
+  | 'file' | 'קובץ';
 
 // Type for the Google Sheets API response
 export interface GoogleSheetsResponse {
