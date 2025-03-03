@@ -23,52 +23,15 @@ const FolderPage: React.FC = () => {
   const folder = getFolderBySlug(folderSlug);
   const page = getPageBySlug(pageSlug);
   
-  // Instead of using state, compute the content directly from the queries
-  // This eliminates the infinite update
+  // במקום להשתמש ב-state, נחשב את התוכן ישירות מהשאילתות
+  // זה מונע עדכון אינסופי
   const content = React.useMemo(() => {
     if (page && page.id) {
-      // Debug the page ID
-      console.log('Looking for content for page ID:', page.id);
-      
-      // Convert page.id to a string in case it comes as a number from the API
+      // המרה ל-string במקרה שה-ID מגיע כמספר מה-API
       const pageIdStr = String(page.id);
       
-      // Log all page IDs and active status in the content for debugging
-      console.log('All content page_ids:', 
-        allContent.map(block => block.page_id).join(', '));
-        
-      // לבדוק את מבנה הנתונים המלא
-      console.log('Data structure sample:', 
-        allContent.length > 0 ? JSON.stringify(allContent[0], null, 2) : 'No content');
-      
-      // תחילה מנסים למצוא תוכן לפי מזהה עמוד
-      // הוספת יותר לוגים לצורך דיבוג
-      const filteredContent = allContent
-        .filter(block => {
-          // המרת שני המזהים למספרים לצורך השוואה מדויקת
-          const blockPageId = Number(block.page_id);
-          const currentPageId = Number(pageIdStr);
-          
-          // בדיקה האם התוכן פעיל ומתאים למזהה העמוד 
-          // תיקון לערכי active חסרים - נחשיב כל ערך חסר כפעיל
-          let isActive = true;  // ברירת מחדל - פעיל
-          
-          if (block.active !== undefined && block.active !== null) {
-            // אם יש ערך, מבדוק שהוא 'yes' או 'כן' (לא תלוי באותיות גדולות/קטנות)
-            isActive = block.active.toLowerCase() === 'yes' || block.active.toLowerCase() === 'כן';
-          }
-          
-          const isMatch = blockPageId === currentPageId && isActive;
-          
-          if (blockPageId === currentPageId) {
-            console.log('Found matching page_id:', blockPageId, 'Active:', block.active, 'Match:', isMatch);
-          }
-          
-          return isMatch;
-        })
-        .sort((a, b) => a.display_order - b.display_order);
-      
-      console.log('Found content items:', filteredContent.length);
+      // השתמש בפונקציה שכבר מטפלת בכל ההמרות והנורמליזציה
+      const filteredContent = getPageContent(pageIdStr);
       
       // אם לא נמצא תוכן וזהו אחד מהעמודים שיודעים שיש להם בעיה, נייצר תוכן זמני
       if (filteredContent.length === 0) {
