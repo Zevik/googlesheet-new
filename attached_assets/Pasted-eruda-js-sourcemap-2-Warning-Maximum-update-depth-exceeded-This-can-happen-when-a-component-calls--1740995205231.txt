@@ -1,0 +1,35 @@
+eruda.js:sourcemap:2 Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.
+    at Sidebar (https://804b968a-10c4-42b1-b936-b972ff34270f-00-2mgrpua80qfyb.kirk.replit.dev/src/components/Sidebar.tsx:22:20)
+    at div
+    at Layout (https://804b968a-10c4-42b1-b936-b972ff34270f-00-2mgrpua80qfyb.kirk.replit.dev/src/components/Layout.tsx:24:19)
+    at Router
+    at QueryClientProvider (https://804b968a-10c4-42b1-b936-b972ff34270f-00-2mgrpua80qfyb.kirk.replit.d…rkspace/node_modules/.vite/deps/@tanstack_react-query.js?v=3f884e33:2844:3)
+    at App
+
+176
+eruda.js:sourcemap:2 Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.
+    at Sidebar (https://804b968a-10c4-42b1-b936-b972ff34270f-00-2mgrpua80qfyb.kirk.replit.dev/src/components/Sidebar.tsx:22:20)
+    at div
+    at Layout (https://804b968a-10c4-42b1-b936-b972ff34270f-00-2mgrpua80qfyb.kirk.replit.dev/src/components/Layout.tsx:24:19)
+    at Router
+    at QueryClientProvider (https://804b968a-10c4-42b1-b936-b972ff34270f-00-2mgrpua80qfyb.kirk.replit.d…rkspace/node_modules/.vite/deps/@tanstack_react-query.js?v=3f884e33:2844:3)
+    at App
+822
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.
+eruda.js:sourcemap:2 Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.
+    at Sidebar (https://804b968a-10c4-42b1-b936-b972ff34270f-00-2mgrpua80qfyb.kirk.replit.dev/src/components/Sidebar.tsx:22:20)
+    at div
+    at Layout (https://804b968a-10c4-42b1-b936-b972ff34270f-00-2mgrpua80qfyb.kirk.replit.dev/src/components/Layout.tsx:24:19)
+    at Router
+    at QueryClientProvider (https://804b968a-10c4-42b1-b936-b972ff34270f-00-2mgrpua80qfyb.kirk.replit.d…rkspace/node_modules/.vite/deps/@tanstack_react-query.js?v=3f884e33:2844:3)
+    at App
+116
+eruda.js:sourcemap:2 Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.
+    at Sidebar (https://804b968a-10c4-42b1-b936-b972ff34270f-00-2mgrpua80qfyb.kirk.replit.dev/src/components/Sidebar.tsx:22:20)
+    at div
+    at Layout (https://804b968a-10c4-42b1-b936-b972ff34270f-00-2mgrpua80qfyb.kirk.replit.dev/src/components/Layout.tsx:24:19)
+    at Router
+    at QueryClientProvider (https://804b968a-10c4-42b1-b936-b972ff34270f-00-2mgrpua80qfyb.kirk.replit.d…rkspace/node_modules/.vite/deps/@tanstack_react-query.js?v=3f884e33:2844:3)
+    at App
+﻿
+

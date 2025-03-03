@@ -11,6 +11,7 @@ const FolderPage: React.FC = () => {
     getFolderBySlug, 
     getPageBySlug, 
     getPageContent, 
+    content: allContent,
     isLoading, 
     hasError, 
     errors 
@@ -22,18 +23,18 @@ const FolderPage: React.FC = () => {
   const folder = getFolderBySlug(folderSlug);
   const page = getPageBySlug(pageSlug);
   
-  const [content, setContent] = React.useState<any[]>([]);
-  const [contentLoading, setContentLoading] = React.useState<boolean>(true);
-  
-  useEffect(() => {
-    if (page) {
-      setContentLoading(true);
-      // גישה ישירה לפונקציה שמחזירה את התוכן ללא צורך ב-Promise
-      const pageContent = getPageContent(page.id);
-      setContent(pageContent);
-      setContentLoading(false);
+  // Instead of using state, compute the content directly from the queries
+  // This eliminates the infinite update
+  const content = React.useMemo(() => {
+    if (page && page.id) {
+      return allContent
+        .filter(block => block.page_id === page.id && block.active === 'yes')
+        .sort((a, b) => a.display_order - b.display_order);
     }
-  }, [page, getPageContent]);
+    return [];
+  }, [page, allContent]);
+  
+  const contentLoading = isLoading;
   
   // Set page title and meta description for SEO
   useEffect(() => {

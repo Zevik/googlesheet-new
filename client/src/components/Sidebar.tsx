@@ -71,21 +71,25 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
     return location === `/${folder.slug}/${page.slug}`;
   };
 
-  // Check if any page in the folder is active
+  // Check if any page in the folder is active using location directly
   const isFolderActive = (folder: MainMenuItem) => {
-    return getFolderPages(folder.id).some(page => isPageActive(folder, page));
+    // Check if the current location starts with folder.slug
+    return location.startsWith(`/${folder.slug}/`);
   };
 
   // Set initial expanded state for the active folder
   React.useEffect(() => {
-    const activeFolder = activeMenuItems.find(folder => isFolderActive(folder));
-    if (activeFolder) {
-      setExpandedFolders(prev => ({
-        ...prev,
-        [activeFolder.id]: true
-      }));
+    // Loop through folders once to find active
+    for (const folder of activeMenuItems) {
+      if (location.startsWith(`/${folder.slug}/`)) {
+        setExpandedFolders(prev => ({
+          ...prev,
+          [folder.id]: true
+        }));
+        break;
+      }
     }
-  }, [location, activeMenuItems]);
+  }, [location, activeMenuItems.length]);
 
   return (
     <aside className={`fixed md:relative z-30 bg-white shadow-lg md:shadow-none w-64 md:w-72 h-screen transition-all duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`}>
