@@ -28,17 +28,12 @@ const FolderPage: React.FC = () => {
   useEffect(() => {
     if (page) {
       setContentLoading(true);
-      getPageContent(page.id)
-        .then(pageContent => {
-          setContent(pageContent);
-          setContentLoading(false);
-        })
-        .catch(error => {
-          console.error('Error fetching page content:', error);
-          setContentLoading(false);
-        });
+      // גישה ישירה לפונקציה שמחזירה את התוכן ללא צורך ב-Promise
+      const pageContent = getPageContent(page.id);
+      setContent(pageContent);
+      setContentLoading(false);
     }
-  }, [page]);
+  }, [page, getPageContent]);
   
   // Set page title and meta description for SEO
   useEffect(() => {

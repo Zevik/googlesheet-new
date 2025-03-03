@@ -48,38 +48,25 @@ const Home: React.FC = () => {
     <div className="space-y-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-neutral-800 mb-2">
-          {getSetting('siteName') || 'אתר מבוסס גוגלשיטס'}
+          {getSetting('siteName')}
         </h1>
         <p className="text-neutral-500">
-          {getSetting('siteDescription') || 'אתר מופעל על ידי נתונים מגוגל שיטס. בחר תיקייה ועמוד מהתפריט כדי להציג תוכן.'}
+          {getSetting('siteDescription')}
         </p>
       </div>
 
-      <Card className="bg-white rounded-lg shadow-sm">
-        <CardContent className="p-6">
-          <div className="flex items-center mb-4">
-            <span className="material-icons text-primary mr-2">info</span>
-            <h2 className="text-xl font-medium text-neutral-800">מידע נוסף</h2>
-          </div>
-          <div className="text-sm text-neutral-500">
-            <p>העמוד טוען נתונים מתוך גוגל שיטס. המזהה של הגיליון הוא:</p>
-            <code className="bg-neutral-50 p-2 rounded block my-2 font-mono text-neutral-800">
-              1IvAFeW8EUKR_kdzX9mpU9PW9BrTDAjS7pC35Gzn2_dI
-            </code>
-            <div className="flex mt-4">
-              <a 
-                href={`https://docs.google.com/spreadsheets/d/1IvAFeW8EUKR_kdzX9mpU9PW9BrTDAjS7pC35Gzn2_dI/edit`} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-primary hover:underline flex items-center"
-              >
-                <span className="material-icons text-sm mr-1">open_in_new</span>
-                פתח את הגיליון בגוגל שיטס
-              </a>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* כפתור קטן להחלפת גיליון ושמירה */}
+      <div className="flex justify-end">
+        <a 
+          href={`https://docs.google.com/spreadsheets/d/1IvAFeW8EUKR_kdzX9mpU9PW9BrTDAjS7pC35Gzn2_dI/edit`} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-primary hover:underline flex items-center text-sm"
+        >
+          <span className="material-icons text-sm mr-1">settings</span>
+          ערוך גיליון נתונים
+        </a>
+      </div>
 
       <h2 className="text-2xl font-bold text-neutral-800 mt-8 mb-4">תיקיות זמינות</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
