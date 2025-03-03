@@ -151,13 +151,43 @@ export const refreshData = async () => {
 
 // Get content for a specific page
 export const getPageContent = async (pageId: string): Promise<ContentBlock[]> => {
-  const allContent = await fetchContent();
-  const filteredContent = allContent
-    .filter(block => String(block.page_id) === String(pageId) && block.active === 'yes')
-    .sort((a, b) => a.display_order - b.display_order);
+  console.log('Looking for content for page ID:', pageId);
   
-  // השימוש בתוכן זמני עבר לקובץ [folder]/[page].tsx
-  // כדי למנוע ניגודים עם הלוגיקה הקיימת כבר שם
-  
-  return filteredContent;
+  try {
+    // Fetch all content blocks
+    const allContent = await fetchContent();
+    
+    // Debug output
+    console.log('All content page_ids:', allContent.map(item => item.page_id).join(', '));
+    console.log('Data structure sample:', JSON.stringify(allContent[0], null, 2));
+    
+    // Filter content blocks for the specific page ID and ensure consistent string comparison
+    const filteredContent = allContent.filter(block => {
+      // נורמליזציה של ערך ה-active - מתייחס למחרוזת ריקה, null, או ערך חסר כ-"yes"
+      const isActive = !block.active || block.active.trim() === '' || block.active === 'yes';
+      // השוואה של page_id באמצעות המרה למחרוזת, כדי למנוע בעיות השוואה בין מספרים ומחרוזות
+      const isMatchingPage = String(block.page_id).trim() === String(pageId).trim();
+      
+      const match = isMatchingPage && isActive;
+      console.log('Found matching page_id:', block.page_id, 'Active:', block.active, 'Match:', match);
+      
+      if (match) {
+        console.log('Content type:', block.content_type, 'Lowercase:', (block.content_type || '').toLowerCase());
+      }
+      
+      return match;
+    });
+    
+    console.log('Found content items:', filteredContent.length);
+    
+    // מיון לפי סדר התצוגה, עם טיפול בערכים לא מספריים
+    return filteredContent.sort((a, b) => {
+      const orderA = parseInt(String(a.display_order)) || 0;
+      const orderB = parseInt(String(b.display_order)) || 0;
+      return orderA - orderB;
+    });
+  } catch (error) {
+    console.error('Error fetching page content:', error);
+    return [];
+  }
 };
