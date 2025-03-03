@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const { log } = require('../vite.cjs');
+const { log } = require('./vite.cjs'); // תיקון הנתיב לקובץ vite.cjs שנמצא באותה תיקייה
 
 // Create Express app
 const app = express();

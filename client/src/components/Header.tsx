@@ -139,18 +139,19 @@ const Header: React.FC<HeaderProps> = ({ isMobileMenuOpen, toggleMobileMenu }) =
   // תפריט להצגה רק בדסקטופ
   const renderDesktopMenu = () => {
     return (
-      <nav className="hidden md:flex items-center justify-center mt-2">
-        <ul className="flex space-x-1 space-x-reverse">
-          <li className="relative group">
+      <nav className="hidden md:flex items-center justify-center mt-2 pb-2">
+        <div className="flex space-x-1 space-x-reverse">
+          {/* קישור לדף הבית */}
+          <div className="relative px-1">
             <Link 
               href="/"
               className={`px-3 py-2 rounded-md text-white hover:bg-blue-600 transition-colors flex items-center ${
                 location === '/' ? 'bg-blue-600 font-medium' : ''
               }`}
             >
-              בית
+              דף הבית
             </Link>
-          </li>
+          </div>
           
           {/* מיפוי קטגוריות התפריט - רק עבור דסקטופ */}
           {activeMenuItems.map((folder: MainMenuItem) => {
@@ -158,11 +159,16 @@ const Header: React.FC<HeaderProps> = ({ isMobileMenuOpen, toggleMobileMenu }) =
               .filter((page: Page) => page.folder_id === folder.id && page.active === 'yes')
               .sort((a: Page, b: Page) => a.display_order - b.display_order);
             
+            // אם אין דפים בקטגוריה, לא נציג אותה
+            if (folderPages.length === 0) {
+              return null;
+            }
+            
             // אם יש רק דף אחד בקטגוריה, נציג קישור ישיר
             if (folderPages.length === 1) {
               const page = folderPages[0];
               return (
-                <li key={folder.id} className="relative group">
+                <div key={folder.id} className="relative px-1">
                   <Link 
                     href={`/${folder.slug}/${page.slug}`}
                     className={`px-3 py-2 rounded-md text-white hover:bg-blue-600 transition-colors flex items-center ${
@@ -171,41 +177,50 @@ const Header: React.FC<HeaderProps> = ({ isMobileMenuOpen, toggleMobileMenu }) =
                   >
                     {folder.folder_name}
                   </Link>
-                </li>
+                </div>
               );
             }
             
-            // אם יש יותר מדף אחד, נציג תפריט נפתח
+            // אם יש יותר מדף אחד, נציג תפריט נפתח משופר
+            const isActive = location.startsWith(`/${folder.slug}/`);
             return (
-              <li key={folder.id} className="relative group">
-                <span
-                  className={`px-3 py-2 rounded-md text-white hover:bg-blue-600 transition-colors flex items-center cursor-pointer ${
-                    location.startsWith(`/${folder.slug}/`) ? 'bg-blue-600 font-medium' : ''
-                  }`}
-                >
-                  {folder.folder_name}
-                  <span className="material-icons text-xs mr-1">arrow_drop_down</span>
-                </span>
-                
-                {/* תפריט נפתח */}
-                <ul className="absolute hidden group-hover:block right-0 mt-1 bg-white shadow-lg rounded-md overflow-hidden min-w-[180px] z-20">
-                  {folderPages.map((page: Page) => (
-                    <li key={page.id}>
-                      <Link 
-                        href={`/${folder.slug}/${page.slug}`}
-                        className={`block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 ${
-                          location === `/${folder.slug}/${page.slug}` ? 'bg-blue-50 text-blue-600 font-medium' : ''
-                        }`}
-                      >
-                        {page.page_name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </li>
+              <div key={folder.id} className="relative inline-block px-1">
+                <div className="group">
+                  <button
+                    className={`px-3 py-2 rounded-md text-white hover:bg-blue-600 transition-colors flex items-center ${
+                      isActive ? 'bg-blue-600 font-medium' : ''
+                    }`}
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    {folder.folder_name}
+                    <span className="material-icons text-xs mr-1">expand_more</span>
+                  </button>
+                  
+                  {/* תפריט נפתח עם hover שלא נסגר בטעות */}
+                  <div className="absolute invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-300 right-0 mt-0.5 z-50 min-w-[220px]">
+                    {/* הוספת מרווח כדי למנוע סגירה */}
+                    <div className="h-2"></div>
+                    
+                    <div className="bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 overflow-hidden">
+                      {folderPages.map((page: Page) => (
+                        <Link 
+                          key={page.id}
+                          href={`/${folder.slug}/${page.slug}`}
+                          className={`block px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 ${
+                            location === `/${folder.slug}/${page.slug}` ? 'bg-blue-50 text-blue-600 font-medium' : ''
+                          }`}
+                        >
+                          {page.page_name}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
             );
           })}
-        </ul>
+        </div>
       </nav>
     );
   };
@@ -242,7 +257,7 @@ const Header: React.FC<HeaderProps> = ({ isMobileMenuOpen, toggleMobileMenu }) =
               }`}
               onClick={toggleMobileMenu}
             >
-              בית
+              דף הבית
             </Link>
             
             {/* קטגוריות מובייל */}
@@ -250,6 +265,11 @@ const Header: React.FC<HeaderProps> = ({ isMobileMenuOpen, toggleMobileMenu }) =
               const folderPages = pages
                 .filter((page: Page) => page.folder_id === folder.id && page.active === 'yes')
                 .sort((a: Page, b: Page) => a.display_order - b.display_order);
+              
+              // אם אין דפים בקטגוריה, לא נציג אותה
+              if (folderPages.length === 0) {
+                return null;
+              }
               
               // אם יש רק דף אחד בקטגוריה, נציג קישור ישיר
               if (folderPages.length === 1) {
