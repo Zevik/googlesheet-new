@@ -10,12 +10,18 @@ import {
 import { queryClient } from './queryClient';
 
 // Generic function to fetch data from Google Sheets via our proxy server
-export const fetchFromGoogleSheets = async (sheetName: string): Promise<any[]> => {
+export const fetchFromGoogleSheets = async (sheetName: string, customSheetUrl: string | null = null): Promise<any[]> => {
   try {
     // Use our server-side proxy to avoid CORS issues
     const url = `/api/sheets/${encodeURIComponent(sheetName)}`;
     
-    const response = await fetch(url);
+    // Create headers object with custom sheet URL if provided
+    const headers: HeadersInit = {};
+    if (customSheetUrl) {
+      headers['x-sheet-url'] = customSheetUrl;
+    }
+    
+    const response = await fetch(url, { headers });
     
     if (!response.ok) {
       throw new Error(`Failed to fetch data: ${response.statusText}`);
@@ -24,13 +30,13 @@ export const fetchFromGoogleSheets = async (sheetName: string): Promise<any[]> =
     const json: GoogleSheetsResponse = await response.json();
     
     // Get column headers from the first row
-    const headers = json.table.cols.map(col => col.label);
+    const headers2 = json.table.cols.map(col => col.label);
     
     // Map rows to objects with column headers as keys
     return json.table.rows.map(row => {
       const item: Record<string, any> = {};
       
-      headers.forEach((header, index) => {
+      headers2.forEach((header, index) => {
         // Skip undefined or null headers
         if (!header) return;
         
@@ -47,8 +53,8 @@ export const fetchFromGoogleSheets = async (sheetName: string): Promise<any[]> =
 };
 
 // Fetch main_menu sheet
-export const fetchMainMenu = async (): Promise<MainMenuItem[]> => {
-  const data = await fetchFromGoogleSheets('main_menu');
+export const fetchMainMenu = async (customSheetUrl: string | null = null): Promise<MainMenuItem[]> => {
+  const data = await fetchFromGoogleSheets('main_menu', customSheetUrl);
   return data.map(item => ({
     id: String(item.id),
     folder_name: item.folder_name,
@@ -60,8 +66,8 @@ export const fetchMainMenu = async (): Promise<MainMenuItem[]> => {
 };
 
 // Fetch pages sheet
-export const fetchPages = async (): Promise<Page[]> => {
-  const data = await fetchFromGoogleSheets('pages');
+export const fetchPages = async (customSheetUrl: string | null = null): Promise<Page[]> => {
+  const data = await fetchFromGoogleSheets('pages', customSheetUrl);
   return data.map(item => ({
     id: String(item.id),
     folder_id: String(item.folder_id),
@@ -75,8 +81,8 @@ export const fetchPages = async (): Promise<Page[]> => {
 };
 
 // Fetch content sheet
-export const fetchContent = async (): Promise<ContentBlock[]> => {
-  const data = await fetchFromGoogleSheets('content');
+export const fetchContent = async (customSheetUrl: string | null = null): Promise<ContentBlock[]> => {
+  const data = await fetchFromGoogleSheets('content', customSheetUrl);
   return data.map(item => {
     // Normalize content_type to lowercase - handles variations like "Title", "title", "כותרת", etc.
     let normalizedContentType = 'text'; // Default to 'text' if no content_type is provided
@@ -113,8 +119,8 @@ export const fetchContent = async (): Promise<ContentBlock[]> => {
 };
 
 // Fetch settings sheet
-export const fetchSettings = async (): Promise<Setting[]> => {
-  const data = await fetchFromGoogleSheets('settings');
+export const fetchSettings = async (customSheetUrl: string | null = null): Promise<Setting[]> => {
+  const data = await fetchFromGoogleSheets('settings', customSheetUrl);
   return data.map(item => ({
     key: item.key,
     value: item.value
@@ -122,8 +128,8 @@ export const fetchSettings = async (): Promise<Setting[]> => {
 };
 
 // Fetch templates sheet
-export const fetchTemplates = async (): Promise<Template[]> => {
-  const data = await fetchFromGoogleSheets('templates');
+export const fetchTemplates = async (customSheetUrl: string | null = null): Promise<Template[]> => {
+  const data = await fetchFromGoogleSheets('templates', customSheetUrl);
   return data.map(item => ({
     id: String(item.id),
     template_name: item.template_name,

@@ -3,8 +3,15 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import fetch from 'node-fetch';
 
-// Google Sheet ID from the requirements
-const SHEET_ID = '1IvAFeW8EUKR_kdzX9mpU9PW9BrTDAjS7pC35Gzn2_dI';
+// Default Google Sheet ID from the requirements
+const DEFAULT_SHEET_ID = '1IvAFeW8EUKR_kdzX9mpU9PW9BrTDAjS7pC35Gzn2_dI';
+
+// Function to extract sheet ID from URL
+function extractSheetId(url: string): string | null {
+  const regex = /https:\/\/docs\.google\.com\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/;
+  const match = url.match(regex);
+  return match ? match[1] : null;
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Add a simple health check endpoint
@@ -16,7 +23,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/sheets/:sheetName', async (req: Request, res: Response) => {
     try {
       const { sheetName } = req.params;
-      const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+      
+      // Check if custom sheet URL was provided in the request
+      let sheetId = DEFAULT_SHEET_ID;
+      const customSheetUrl = req.headers['x-sheet-url'] as string;
+      
+      if (customSheetUrl) {
+        const extractedId = extractSheetId(customSheetUrl);
+        if (extractedId) {
+          sheetId = extractedId;
+        }
+      }
+      
+      const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+      
+      console.log(`Fetching from sheet ID: ${sheetId}, sheet name: ${sheetName}`);
       
       const response = await fetch(url);
       

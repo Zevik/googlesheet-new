@@ -1,43 +1,56 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { 
   fetchMainMenu, 
   fetchPages, 
   fetchContent, 
   fetchSettings, 
-  fetchTemplates 
+  fetchTemplates,
+  refreshData 
 } from '@/lib/googleSheetsUtils';
 import { MainMenuItem, Page, ContentBlock, Setting, Template } from '@/lib/types';
+import { useEffect, useState } from 'react';
 
 // Hook to fetch and access all Google Sheets data
 export const useGoogleSheets = () => {
+  const queryClient = useQueryClient();
+  const [customSheetUrl, setCustomSheetUrl] = useState<string | null>(null);
+  
+  // Load custom sheet URL from localStorage on initial render
+  useEffect(() => {
+    const storedUrl = localStorage.getItem('sheetsURL');
+    if (storedUrl) {
+      setCustomSheetUrl(storedUrl);
+    }
+  }, []);
+  
   // Fetch main menu
   const { data: mainMenu = [], isLoading: isMenuLoading, error: menuError } = useQuery({
-    queryKey: ['main_menu'],
-    queryFn: fetchMainMenu
+    queryKey: ['main_menu', customSheetUrl],
+    queryFn: () => fetchMainMenu(customSheetUrl)
   });
 
   // Fetch pages
   const { data: pages = [], isLoading: isPagesLoading, error: pagesError } = useQuery({
-    queryKey: ['pages'],
-    queryFn: fetchPages
+    queryKey: ['pages', customSheetUrl],
+    queryFn: () => fetchPages(customSheetUrl)
   });
 
   // Fetch content
   const { data: content = [], isLoading: isContentLoading, error: contentError } = useQuery({
-    queryKey: ['content'],
-    queryFn: fetchContent
+    queryKey: ['content', customSheetUrl],
+    queryFn: () => fetchContent(customSheetUrl)
   });
 
   // Fetch settings
   const { data: settings = [], isLoading: isSettingsLoading, error: settingsError } = useQuery({
-    queryKey: ['settings'],
-    queryFn: fetchSettings
+    queryKey: ['settings', customSheetUrl],
+    queryFn: () => fetchSettings(customSheetUrl)
   });
 
   // Fetch templates
   const { data: templates = [], isLoading: isTemplatesLoading, error: templatesError } = useQuery({
-    queryKey: ['templates'],
-    queryFn: fetchTemplates
+    queryKey: ['templates', customSheetUrl],
+    queryFn: () => fetchTemplates(customSheetUrl)
   });
 
   // Filter menu items by active status and sort by display order
@@ -87,6 +100,25 @@ export const useGoogleSheets = () => {
   const errors = [menuError, pagesError, contentError, settingsError, templatesError].filter(Boolean);
   const hasError = errors.length > 0;
   
+  // Function to refresh all data with new sheet URL
+  const refreshWithNewSheetUrl = async (newUrl: string | null = null) => {
+    if (newUrl !== null) {
+      localStorage.setItem('sheetsURL', newUrl);
+      setCustomSheetUrl(newUrl);
+    }
+    
+    await refreshData();
+    
+    // Invalidate all queries to force refetch with new URL
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['main_menu'] }),
+      queryClient.invalidateQueries({ queryKey: ['pages'] }),
+      queryClient.invalidateQueries({ queryKey: ['content'] }),
+      queryClient.invalidateQueries({ queryKey: ['settings'] }),
+      queryClient.invalidateQueries({ queryKey: ['templates'] })
+    ]);
+  };
+
   return {
     mainMenu: activeMenuItems,
     pages,
@@ -99,6 +131,8 @@ export const useGoogleSheets = () => {
     getPageBySlug,
     getFolderBySlug,
     getTemplateById,
+    refreshData: refreshWithNewSheetUrl,
+    currentSheetUrl: customSheetUrl,
     isLoading,
     hasError,
     errors
