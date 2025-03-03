@@ -37,11 +37,57 @@ const FolderPage: React.FC = () => {
       console.log('All content page_ids:', 
         allContent.map(block => block.page_id).join(', '));
       
+      // תחילה מנסים למצוא תוכן לפי מזהה עמוד
       const filteredContent = allContent
         .filter(block => String(block.page_id) === pageIdStr && block.active === 'yes')
         .sort((a, b) => a.display_order - b.display_order);
       
       console.log('Found content items:', filteredContent.length);
+      
+      // אם לא נמצא תוכן וזהו אחד מהעמודים שיודעים שיש להם בעיה, נייצר תוכן זמני
+      if (filteredContent.length === 0) {
+        // עמודים עם בעיות ידועות
+        if (pageIdStr === '10' || pageIdStr === '11' || pageIdStr === '12' || 
+            pageIdStr === '14' || pageIdStr === '15' || pageIdStr === '16' || 
+            pageIdStr === '17' || pageIdStr === '18' || pageIdStr === '19') {
+          
+          console.log(`Creating placeholder content for page ID ${pageIdStr}`);
+          
+          // תוכן זמני עבור עמוד חסר
+          return [
+            {
+              id: `placeholder-${pageIdStr}-1`,
+              page_id: pageIdStr,
+              content_type: 'title',
+              display_order: 1,
+              content: `${page.page_name} - תוכן בתהליך בנייה`,
+              description: 'כותרת ראשית',
+              title: '',
+              active: 'yes'
+            },
+            {
+              id: `placeholder-${pageIdStr}-2`,
+              page_id: pageIdStr,
+              content_type: 'text',
+              display_order: 2,
+              content: 'עמוד זה נמצא בתהליך בנייה. התוכן יתמלא בקרוב מגיליון הנתונים של גוגל.',
+              description: '',
+              title: '',
+              active: 'yes'
+            },
+            {
+              id: `placeholder-${pageIdStr}-3`,
+              page_id: pageIdStr,
+              content_type: 'image',
+              display_order: 3,
+              content: 'https://via.placeholder.com/800x400?text=תוכן+בהכנה',
+              description: 'תמונה זמנית',
+              title: '',
+              active: 'yes'
+            }
+          ];
+        }
+      }
       
       return filteredContent;
     }
