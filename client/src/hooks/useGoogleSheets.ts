@@ -61,8 +61,19 @@ export const useGoogleSheets = () => {
   // Get page content by page ID
   const getPageContent = (pageId: string): ContentBlock[] => {
     return content
-      .filter((block: ContentBlock) => block.page_id === pageId && block.active === 'yes')
-      .sort((a: ContentBlock, b: ContentBlock) => a.display_order - b.display_order);
+      .filter((block: ContentBlock) => {
+        // נורמליזציה של ערך ה-active - מתייחס למחרוזת ריקה, null, או ערך חסר כ-"yes"
+        const isActive = !block.active || block.active.trim() === '' || block.active === 'yes';
+        // השוואה של page_id באמצעות המרה למחרוזת, כדי למנוע בעיות השוואה בין מספרים ומחרוזות
+        const isMatchingPage = String(block.page_id).trim() === String(pageId).trim();
+        
+        return isMatchingPage && isActive;
+      })
+      .sort((a: ContentBlock, b: ContentBlock) => {
+        const orderA = parseInt(String(a.display_order)) || 0;
+        const orderB = parseInt(String(b.display_order)) || 0;
+        return orderA - orderB;
+      });
   };
 
   // Get a setting by key
