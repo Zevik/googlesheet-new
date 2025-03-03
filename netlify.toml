@@ -9,13 +9,7 @@
 # Force Node.js 18.x for compatibility
 [build.environment]
   NODE_VERSION = "18"
-  # Forcibly disable Next.js plugin completely
   NETLIFY_USE_NEXTJS = "false"
-
-# Prevent Next.js plugin from running
-[plugins]
-  # Explicitly disable all plugins (especially Next.js)
-  package = []
 
 [[redirects]]
   from = "/api/*" 
