@@ -64,28 +64,7 @@ const Home: React.FC = () => {
         </p>
       </div>
 
-      {/* אפשרויות לגיליון הנתונים */}
-      <div className="flex justify-end space-x-4">
-        <Link 
-          href="/settings"
-          className="text-primary hover:underline flex items-center text-sm ml-4"
-        >
-          <span className="material-icons text-sm mr-1">tune</span>
-          הגדרות מקור נתונים
-        </Link>
-
-        <a 
-          href={getSetting('sheetsURL') || `https://docs.google.com/spreadsheets/d/1IvAFeW8EUKR_kdzX9mpU9PW9BrTDAjS7pC35Gzn2_dI/edit`} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="text-primary hover:underline flex items-center text-sm"
-        >
-          <span className="material-icons text-sm mr-1">edit_note</span>
-          ערוך גיליון נתונים
-        </a>
-      </div>
-
-      <h2 className="text-2xl font-bold text-neutral-800 mt-8 mb-4">תיקיות זמינות</h2>
+      <h2 className="text-2xl font-bold text-neutral-800 mt-8 mb-4">קטגוריות</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {mainMenu.map(folder => {
           const folderPages = getFolderPages(folder.id);
