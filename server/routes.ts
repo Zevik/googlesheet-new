@@ -19,10 +19,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
       
       const response = await fetch(url);
+      
+      if (!response.ok) {
+        return res.status(response.status).json({ 
+          error: `Failed to fetch data from Google Sheets: ${response.statusText}` 
+        });
+      }
+      
       const text = await response.text();
       
       // Extract the JSON part from the response
-      const jsonText = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);/)?.[1];
+      // The response is in the format: /*O_o*/ google.visualization.Query.setResponse({...});
+      const jsonText = text.replace(/^\/\*O_o\*\/\s*google\.visualization\.Query\.setResponse\(/, '')
+                           .replace(/\);$/, '');
       
       if (!jsonText) {
         return res.status(500).json({ error: 'Failed to extract JSON data from Google Sheets response' });
