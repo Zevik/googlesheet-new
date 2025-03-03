@@ -151,7 +151,8 @@ export const refreshData = async () => {
 
 // Get content for a specific page
 export const getPageContent = async (pageId: string): Promise<ContentBlock[]> => {
-  console.log('Looking for content for page ID:', pageId);
+  // No longer need to log page ID
+  // console.log('Looking for content for page ID:', pageId);
   
   try {
     // Fetch all content blocks
