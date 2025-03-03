@@ -1,16 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import Footer from './Footer';
 import { useQuery } from '@tanstack/react-query';
 import { fetchSettings } from '@/lib/googleSheetsUtils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const isMobile = useIsMobile();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(!isMobile);
+  
+  // עדכון הסטייט כשיש שינוי בגודל המסך
+  useEffect(() => {
+    setIsSidebarOpen(!isMobile);
+  }, [isMobile]);
   
   const { data: settings } = useQuery({
     queryKey: ['settings'],

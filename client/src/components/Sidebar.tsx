@@ -131,6 +131,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
                 ? 'bg-primary/10 hover:bg-primary/15 text-primary font-medium' 
                 : 'hover:bg-neutral-50 text-neutral-500'
             }`}
+            onClick={() => {
+              // סגור את התפריט במובייל אחרי לחיצה על קישור
+              if (window.innerWidth < 768) {
+                toggleSidebar();
+              }
+            }}
           >
             <span className={`material-icons text-sm ml-2 ${location === '/' ? 'text-primary' : 'text-neutral-300'}`}>
               home
@@ -166,6 +172,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
                           ? 'bg-primary/10 hover:bg-primary/15 text-primary font-medium' 
                           : 'hover:bg-neutral-50 text-neutral-500'
                       }`}
+                      onClick={() => {
+                        // סגור את התפריט במובייל אחרי לחיצה על קישור
+                        if (window.innerWidth < 768) {
+                          toggleSidebar();
+                        }
+                      }}
                     >
                       <span className="material-icons text-primary ml-2">folder</span>
                       <span className="font-medium">{folder.folder_name}</span>
@@ -199,6 +211,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
                                   ? 'bg-primary/10 hover:bg-primary/15 text-primary font-medium' 
                                   : 'hover:bg-neutral-50 text-neutral-500'
                               }`}
+                              onClick={() => {
+                                // סגור את התפריט במובייל אחרי לחיצה על קישור
+                                if (window.innerWidth < 768) {
+                                  toggleSidebar();
+                                }
+                              }}
                             >
                               <span className={`material-icons text-sm ml-2 ${isActive ? 'text-primary' : 'text-neutral-300'}`}>
                                 description
