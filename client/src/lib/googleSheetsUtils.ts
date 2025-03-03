@@ -4,7 +4,8 @@ import {
   ContentBlock, 
   Setting, 
   Template,
-  GoogleSheetsResponse
+  GoogleSheetsResponse,
+  ContentType
 } from './types';
 import { queryClient } from './queryClient';
 
@@ -77,16 +78,31 @@ export const fetchPages = async (): Promise<Page[]> => {
 export const fetchContent = async (): Promise<ContentBlock[]> => {
   const data = await fetchFromGoogleSheets('content');
   return data.map(item => {
-    // For debugging
+    // Normalize content_type to lowercase - handles variations like "Title", "title", "כותרת", etc.
+    let normalizedContentType = 'text'; // Default to 'text' if no content_type is provided
+    
     if (item.content_type) {
-      console.log('Original content_type:', item.content_type);
+      const contentTypeStr = String(item.content_type).toLowerCase();
+      
+      // Map Hebrew content types to English equivalents
+      if (contentTypeStr === 'כותרת' || contentTypeStr === 'title') normalizedContentType = 'title';
+      else if (contentTypeStr === 'טקסט' || contentTypeStr === 'text') normalizedContentType = 'text';
+      else if (contentTypeStr === 'תמונה' || contentTypeStr === 'image') normalizedContentType = 'image';
+      else if (contentTypeStr === 'יוטיוב' || contentTypeStr === 'youtube') normalizedContentType = 'youtube';
+      else if (contentTypeStr === 'רשימה' || contentTypeStr === 'list') normalizedContentType = 'list';
+      else if (contentTypeStr === 'קישור' || contentTypeStr === 'link') normalizedContentType = 'link';
+      else if (contentTypeStr === 'מפריד' || contentTypeStr === 'separator') normalizedContentType = 'separator';
+      else if (contentTypeStr === 'קובץ' || contentTypeStr === 'file') normalizedContentType = 'file';
+      else if (contentTypeStr === 'טבלה' || contentTypeStr === 'table') normalizedContentType = 'table';
     }
+    
+    // For debugging
+    console.log("Content type:", item.content_type, "Normalized:", normalizedContentType);
     
     return {
       id: String(item.id),
       page_id: String(item.page_id),
-      // Ensure content_type is properly processed
-      content_type: item.content_type ? String(item.content_type).toLowerCase() : '',
+      content_type: normalizedContentType as ContentType,
       display_order: Number(item.display_order),
       content: item.content,
       description: item.description,

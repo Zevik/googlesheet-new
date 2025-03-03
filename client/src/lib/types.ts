@@ -45,17 +45,17 @@ export interface Template {
   description: string;
 }
 
-// Content type enum
+// Content type enum - we standardize on English lowercase format internally
 export type ContentType = 
-  | 'text' | 'טקסט'
-  | 'title' | 'כותרת'
-  | 'image' | 'תמונה'
-  | 'youtube' | 'יוטיוב'
-  | 'link' | 'קישור'
-  | 'list' | 'רשימה'
-  | 'table' | 'טבלה'
-  | 'separator' | 'מפריד'
-  | 'file' | 'קובץ';
+  | 'text'
+  | 'title'
+  | 'image'
+  | 'youtube'
+  | 'link'
+  | 'list'
+  | 'table'
+  | 'separator'
+  | 'file';
 
 // Type for the Google Sheets API response
 export interface GoogleSheetsResponse {
