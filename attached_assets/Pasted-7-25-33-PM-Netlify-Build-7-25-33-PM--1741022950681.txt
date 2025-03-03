@@ -1,0 +1,82 @@
+7:25:33 PM: Netlify Build                                                 
+7:25:33 PM: ────────────────────────────────────────────────────────────────
+7:25:33 PM: ​
+7:25:33 PM: ❯ Version
+7:25:33 PM:   @netlify/build 29.59.2
+7:25:33 PM: ​
+7:25:33 PM: ❯ Flags
+7:25:33 PM:   accountId: 6679f5c1d30e70442ec40c28
+7:25:33 PM:   baseRelDir: true
+7:25:33 PM:   buildId: 67c5e494f6b11877c4e6c493
+7:25:33 PM:   deployId: 67c5e494f6b11877c4e6c495
+7:25:33 PM: ​
+7:25:33 PM: ❯ Current directory
+7:25:33 PM:   /opt/build/repo
+7:25:33 PM: ​
+7:25:33 PM: ❯ Config file
+7:25:33 PM:   /opt/build/repo/netlify.toml
+7:25:33 PM: ​
+7:25:33 PM: ❯ Context
+7:25:33 PM:   production
+7:25:33 PM: ​
+7:25:33 PM: build.command from netlify.toml                               
+7:25:33 PM: ────────────────────────────────────────────────────────────────
+7:25:33 PM: ​
+7:25:33 PM: $ npm run build && mkdir -p dist/functions && cp server/functions/server.cjs dist/functions/server.js && cp server/functions/vite.cjs dist/functions/vite.cjs && echo 'Build completed successfully'
+7:25:33 PM: > rest-express@1.0.0 build
+7:25:33 PM: > vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+7:25:33 PM: vite v5.4.14 building for production...
+7:25:34 PM: transforming...
+7:25:37 PM: ✓ 1709 modules transformed.
+7:25:37 PM: rendering chunks...
+7:25:37 PM: computing gzip size...
+7:25:37 PM: ../dist/public/index.html                   1.92 kB │ gzip:  0.77 kB
+7:25:37 PM: ../dist/public/assets/index-BvLyo30n.css   75.82 kB │ gzip: 12.68 kB
+7:25:37 PM: ../dist/public/assets/index-BcG0bUMd.js   293.64 kB │ gzip: 92.55 kB
+7:25:37 PM: ✓ built in 3.57s
+7:25:37 PM:   dist/index.js  6.4kb
+7:25:37 PM: ⚡ Done in 3ms
+7:25:37 PM: Build completed successfully
+7:25:37 PM: ​
+7:25:37 PM: (build.command completed in 4.3s)
+7:25:37 PM: ​
+7:25:37 PM: Functions bundling                                            
+7:25:37 PM: ────────────────────────────────────────────────────────────────
+7:25:37 PM: ​
+7:25:37 PM: Packaging Functions from dist/functions directory:
+7:25:37 PM:  - server.js
+7:25:37 PM:  - vite.cjs
+7:25:37 PM: ​
+7:25:37 PM: ​
+7:25:37 PM: Dependencies installation error                               
+7:25:37 PM: ────────────────────────────────────────────────────────────────
+7:25:37 PM: ​
+7:25:37 PM:   Error message
+7:25:37 PM:   A Netlify Function failed to require one of its dependencies.
+7:25:37 PM:   Please make sure it is present in the site's top-level "package.json".
+​
+7:25:37 PM:   In file "/opt/build/repo/dist/functions/server.js"
+7:25:37 PM:   Cannot find module '../vite.cjs' from '/opt/build/repo/dist/functions'
+7:25:37 PM: ​
+7:25:37 PM:   Resolved config
+7:25:37 PM:   build:
+7:25:37 PM:     command: npm run build && mkdir -p dist/functions && cp server/functions/server.cjs dist/functions/server.js && cp server/functions/vite.cjs dist/functions/vite.cjs && echo 'Build completed successfully'
+7:25:37 PM:     commandOrigin: config
+7:25:37 PM:     environment:
+7:25:37 PM:       - NODE_VERSION
+7:25:37 PM:       - NETLIFY_USE_NEXTJS
+7:25:37 PM:     publish: /opt/build/repo/dist/public
+7:25:37 PM:     publishOrigin: config
+7:25:37 PM:   functionsDirectory: /opt/build/repo/dist/functions
+7:25:37 PM:   redirects:
+7:25:38 PM: Failed during stage 'building site': Build script returned non-zero exit code: 2 (https://ntl.fyi/exit-code-2)
+7:25:38 PM:     - from: /api/*
+      status: 200
+      to: /.netlify/functions/server/:splat
+    - from: /*
+      status: 200
+      to: /index.html
+  redirectsOrigin: config
+7:25:38 PM: Build failed due to a user error: Build script returned non-zero exit code: 2
+7:25:38 PM: Failing build: Failed to build site
+7:25:38 PM: Finished processing build request in 41.863s

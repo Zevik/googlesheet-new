@@ -1,22 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'wouter';
+import { useLocation, Link } from 'wouter';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchMainMenu, fetchPages, fetchSettings, setCurrentSheetUrl } from '@/lib/googleSheetsUtils';
+import { 
+  fetchMainMenu, 
+  fetchPages, 
+  fetchSettings, 
+  setCurrentSheetUrl, 
+  fetchMainMenuForQuery, 
+  fetchPagesForQuery 
+} from '@/lib/googleSheetsUtils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { MainMenuItem, Page } from '@/lib/types';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface HeaderProps {
-  toggleSidebar: () => void;
+  isMobileMenuOpen: boolean;
+  toggleMobileMenu: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
+const Header: React.FC<HeaderProps> = ({ isMobileMenuOpen, toggleMobileMenu }) => {
   const [location] = useLocation();
   const pathParts = location.split('/').filter(Boolean);
   const folderSlug = pathParts[0];
   const pageSlug = pathParts[1];
   const [visible, setVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const isMobile = useIsMobile();
   
   // מצב פתיחת הדיאלוג של שינוי קישור גיליון
   const [isSheetDialogOpen, setIsSheetDialogOpen] = useState(false);
@@ -32,8 +43,8 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       
-      if (currentScrollY > lastScrollY) {
-        // גלילה למטה - הסתרת ההדר
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // גלילה למטה - הסתרת ההדר רק לאחר גלילה משמעותית
         setVisible(false);
       } else {
         // גלילה למעלה - הצגת ההדר
@@ -50,13 +61,13 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   // Fetch menu items
   const { data: menuItems = [] } = useQuery({
     queryKey: ['main_menu'],
-    queryFn: () => fetchMainMenu()
+    queryFn: fetchMainMenuForQuery
   });
 
   // Fetch pages
   const { data: pages = [] } = useQuery({
     queryKey: ['pages'],
-    queryFn: () => fetchPages()
+    queryFn: fetchPagesForQuery
   });
   
   // Fetch settings
@@ -120,19 +131,193 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   const siteName = settings.find((s: any) => s.key === 'siteName')?.value;
   const logo = settings.find((s: any) => s.key === 'logo')?.value;
 
+  // סינון וקבלת פריטי תפריט פעילים
+  const activeMenuItems = menuItems
+    .filter((item: MainMenuItem) => item.active === 'yes')
+    .sort((a: MainMenuItem, b: MainMenuItem) => a.display_order - b.display_order);
+
+  // תפריט להצגה רק בדסקטופ
+  const renderDesktopMenu = () => {
+    return (
+      <nav className="hidden md:flex items-center justify-center mt-2">
+        <ul className="flex space-x-1 space-x-reverse">
+          <li className="relative group">
+            <Link 
+              href="/"
+              className={`px-3 py-2 rounded-md text-white hover:bg-blue-600 transition-colors flex items-center ${
+                location === '/' ? 'bg-blue-600 font-medium' : ''
+              }`}
+            >
+              בית
+            </Link>
+          </li>
+          
+          {/* מיפוי קטגוריות התפריט - רק עבור דסקטופ */}
+          {activeMenuItems.map((folder: MainMenuItem) => {
+            const folderPages = pages
+              .filter((page: Page) => page.folder_id === folder.id && page.active === 'yes')
+              .sort((a: Page, b: Page) => a.display_order - b.display_order);
+            
+            // אם יש רק דף אחד בקטגוריה, נציג קישור ישיר
+            if (folderPages.length === 1) {
+              const page = folderPages[0];
+              return (
+                <li key={folder.id} className="relative group">
+                  <Link 
+                    href={`/${folder.slug}/${page.slug}`}
+                    className={`px-3 py-2 rounded-md text-white hover:bg-blue-600 transition-colors flex items-center ${
+                      location === `/${folder.slug}/${page.slug}` ? 'bg-blue-600 font-medium' : ''
+                    }`}
+                  >
+                    {folder.folder_name}
+                  </Link>
+                </li>
+              );
+            }
+            
+            // אם יש יותר מדף אחד, נציג תפריט נפתח
+            return (
+              <li key={folder.id} className="relative group">
+                <span
+                  className={`px-3 py-2 rounded-md text-white hover:bg-blue-600 transition-colors flex items-center cursor-pointer ${
+                    location.startsWith(`/${folder.slug}/`) ? 'bg-blue-600 font-medium' : ''
+                  }`}
+                >
+                  {folder.folder_name}
+                  <span className="material-icons text-xs mr-1">arrow_drop_down</span>
+                </span>
+                
+                {/* תפריט נפתח */}
+                <ul className="absolute hidden group-hover:block right-0 mt-1 bg-white shadow-lg rounded-md overflow-hidden min-w-[180px] z-20">
+                  {folderPages.map((page: Page) => (
+                    <li key={page.id}>
+                      <Link 
+                        href={`/${folder.slug}/${page.slug}`}
+                        className={`block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 ${
+                          location === `/${folder.slug}/${page.slug}` ? 'bg-blue-50 text-blue-600 font-medium' : ''
+                        }`}
+                      >
+                        {page.page_name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+    );
+  };
+
+  // תפריט מובייל שנפתח
+  const renderMobileMenu = () => {
+    return (
+      <div className={`md:hidden fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300 ${
+        isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+      }`}>
+        <div className={`fixed top-0 right-0 w-3/4 h-full bg-white shadow-xl transition-transform duration-300 transform ${
+          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        } z-50 overflow-y-auto`}>
+          {/* כותרת התפריט */}
+          <div className="flex items-center justify-between p-4 border-b">
+            <div className="flex items-center">
+              {logo && <img src={logo} alt={siteName || 'לוגו האתר'} className="h-8 w-auto ml-3" />}
+              <h2 className="text-lg font-bold text-primary">{siteName}</h2>
+            </div>
+            <button 
+              className="text-gray-500 hover:text-gray-700" 
+              onClick={toggleMobileMenu}
+            >
+              <span className="material-icons">close</span>
+            </button>
+          </div>
+          
+          {/* תפריט ניווט */}
+          <nav className="p-4">
+            <Link 
+              href="/"
+              className={`block py-2 px-4 rounded-md mb-2 ${
+                location === '/' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
+              }`}
+              onClick={toggleMobileMenu}
+            >
+              בית
+            </Link>
+            
+            {/* קטגוריות מובייל */}
+            {activeMenuItems.map((folder: MainMenuItem) => {
+              const folderPages = pages
+                .filter((page: Page) => page.folder_id === folder.id && page.active === 'yes')
+                .sort((a: Page, b: Page) => a.display_order - b.display_order);
+              
+              // אם יש רק דף אחד בקטגוריה, נציג קישור ישיר
+              if (folderPages.length === 1) {
+                const page = folderPages[0];
+                return (
+                  <Link 
+                    key={folder.id}
+                    href={`/${folder.slug}/${page.slug}`}
+                    className={`block py-2 px-4 rounded-md mb-2 ${
+                      location === `/${folder.slug}/${page.slug}` ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                    onClick={toggleMobileMenu}
+                  >
+                    {folder.folder_name}
+                  </Link>
+                );
+              }
+              
+              // אם יש יותר מדף אחד, נציג פריט מתרחב
+              return (
+                <div key={folder.id} className="mb-2">
+                  <details className="group">
+                    <summary className={`flex items-center justify-between py-2 px-4 rounded-md cursor-pointer ${
+                      location.startsWith(`/${folder.slug}/`) ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                    }`}>
+                      <span>{folder.folder_name}</span>
+                      <span className="material-icons text-gray-400 text-sm group-open:rotate-180 transition-transform">
+                        expand_more
+                      </span>
+                    </summary>
+                    <div className="pr-4 pl-2 mt-2 space-y-1 border-r-2 border-blue-100">
+                      {folderPages.map((page: Page) => (
+                        <Link 
+                          key={page.id}
+                          href={`/${folder.slug}/${page.slug}`}
+                          className={`block py-2 px-4 rounded-md text-sm ${
+                            location === `/${folder.slug}/${page.slug}` ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                          }`}
+                          onClick={toggleMobileMenu}
+                        >
+                          {page.page_name}
+                        </Link>
+                      ))}
+                    </div>
+                  </details>
+                </div>
+              );
+            })}
+          </nav>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
       <header 
-        className={`bg-gradient-to-l from-blue-600 to-blue-500 shadow-md z-20 sticky top-0 text-white w-full transition-transform duration-300 ${
+        className={`bg-gradient-to-l from-blue-600 to-blue-500 shadow-md z-30 sticky top-0 text-white w-full transition-transform duration-300 ${
           visible ? 'translate-y-0' : '-translate-y-full'
         }`}
       >
+        {/* חלק עליון */}
         <div className="flex items-center justify-between px-6 py-3 max-w-7xl mx-auto">
-          {/* צד ימין: לוגו, שם האתר וכפתור הבורגר למובייל */}
+          {/* צד ימין: לוגו ושם האתר */}
           <div className="flex items-center">
             <button 
               className="md:hidden ml-3 text-white hover:bg-blue-700 p-1 rounded transition-colors" 
-              onClick={toggleSidebar}
+              onClick={toggleMobileMenu}
               aria-label="פתח תפריט"
             >
               <span className="material-icons">menu</span>
@@ -146,10 +331,10 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
             )}
           </div>
           
-          {/* צד שמאל: ניווט ואייקונים */}
+          {/* צד שמאל: נתיב ניווט ואייקונים */}
           <div className="flex items-center">
-            {/* ניווט */}
-            <nav className="text-sm breadcrumbs mr-4">
+            {/* נתיב ניווט */}
+            <nav className="text-sm breadcrumbs hidden md:flex mr-4">
               <ol className="flex items-center">
                 <li className="flex items-center">
                   <a href="/" className="text-white hover:text-blue-100">ראשי</a>
@@ -211,7 +396,13 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
             </div>
           </div>
         </div>
+        
+        {/* תפריט ראשי לדסקטופ */}
+        {renderDesktopMenu()}
       </header>
+      
+      {/* תפריט מובייל */}
+      {renderMobileMenu()}
       
       {/* דיאלוג החלפת קישור לגיליון */}
       <Dialog open={isSheetDialogOpen} onOpenChange={setIsSheetDialogOpen}>
