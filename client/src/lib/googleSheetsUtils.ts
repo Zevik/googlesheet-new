@@ -150,52 +150,79 @@ export const fetchContent = async (customSheetUrl: string | null = null): Promis
 export const fetchSettings = async (customSheetUrl: string | null = null): Promise<Setting[]> => {
   const data = await fetchFromGoogleSheets('settings', customSheetUrl);
   
-  console.log('Raw settings data:', data);
+  // Manual parsing for the specific format of the settings sheet
+  const settings: Setting[] = [];
+
+  // Special handling for the first row which contains the key-value columns
+  if (data.length > 0) {
+    try {
+      // Get column names from the first row (first column might have the keys list)
+      const firstRow = data[0];
+      const firstColKey = Object.keys(firstRow)[0]; // First column name
+      const firstColValue = firstRow[firstColKey]; // Get the content of first column
+      
+      // Check if the column contains a space-separated list of keys
+      if (typeof firstColValue === 'string' && firstColValue.includes('siteName')) {
+        // This is the special format where keys are in column labels
+        const keysList = firstColValue.split(' ');
+        
+        // If the first element is 'key', remove it
+        const keysWithoutPrefix = keysList[0] === 'key' ? keysList.slice(1) : keysList;
+        
+        // Get the second column's content (containing values)
+        const secondColKey = Object.keys(firstRow)[1]; // Second column name
+        const secondColValue = firstRow[secondColKey]; // Get content of second column
+        
+        if (typeof secondColValue === 'string') {
+          // Split values by spaces, but handling the first 'value' prefix
+          const valuesList = secondColValue.split(' ');
+          const valuesWithoutPrefix = valuesList[0] === 'value' ? valuesList.slice(1) : valuesList;
+          
+          // Create setting objects for each key-value pair
+          keysWithoutPrefix.forEach((key, index) => {
+            if (index < valuesWithoutPrefix.length) {
+              settings.push({
+                key: key.trim(),
+                value: valuesWithoutPrefix[index].trim()
+              });
+            }
+          });
+        }
+      }
+      
+      // Add any other regular rows that have key-value format (like 'address')
+      data.forEach(row => {
+        const entries = Object.entries(row);
+        if (entries.length >= 2) {
+          const firstCol = String(entries[0][1]).trim();
+          const secondCol = String(entries[1][1]).trim();
+          
+          // Check if this is a standard key-value setting row
+          if (firstCol && !firstCol.includes(' ') && firstCol !== 'key' && secondCol !== 'value') {
+            settings.push({ key: firstCol, value: secondCol });
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Error parsing settings sheet:', error);
+    }
+  }
   
-  // Check if we have data in the standard key-value format
-  if (data.length > 0 && data[0].key !== undefined && data[0].value !== undefined) {
+  // Fallback to standard processing if no settings were extracted
+  if (settings.length === 0) {
     return data.map(item => ({
       key: item.key || '',
       value: item.value || ''
     }));
   }
   
-  // Handle special case for the settings sheet
-  // The settings sheet in this format has each row representing a single setting
-  // with the key in the first column and value in the second column
-  const settings: Setting[] = [];
+  // Remove duplicate settings
+  const uniqueSettings = settings.filter((setting, index, self) => 
+    index === self.findIndex(s => s.key === setting.key)
+  );
   
-  for (const row of data) {
-    const entries = Object.entries(row);
-    if (entries.length >= 2) {
-      // Get the first two columns from each row
-      const key = String(entries[0][1]).trim();
-      const value = String(entries[1][1]).trim();
-      
-      // Skip header row or empty entries
-      if (key !== 'key' && key && value && key !== 'value') {
-        settings.push({ key, value });
-      }
-    }
-  }
-  
-  // Add additional settings from separate rows like "address"
-  data.forEach(row => {
-    const entries = Object.entries(row);
-    if (entries.length >= 2) {
-      const firstCol = String(entries[0][1]).trim();
-      const secondCol = String(entries[1][1]).trim();
-      
-      // Check if this is a named setting (not the header row)
-      if (firstCol && firstCol !== 'key' && secondCol && secondCol !== 'value') {
-        // Add as a separate setting
-        settings.push({ key: firstCol, value: secondCol });
-      }
-    }
-  });
-  
-  console.log('Processed settings:', settings);
-  return settings;
+  console.log('Final processed settings:', uniqueSettings);
+  return uniqueSettings;
 };
 
 // Fetch templates sheet

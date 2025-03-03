@@ -1,0 +1,86 @@
+5:16:39 PM: Netlify Build                                                 
+5:16:39 PM: ────────────────────────────────────────────────────────────────
+5:16:39 PM: ​
+5:16:39 PM: ❯ Version
+5:16:39 PM:   @netlify/build 29.59.2
+5:16:39 PM: ​
+5:16:39 PM: ❯ Flags
+5:16:39 PM:   accountId: 6679f5c1d30e70442ec40c28
+5:16:39 PM:   baseRelDir: true
+5:16:39 PM:   buildId: 67c5c7a7f6b11832d0e6c448
+5:16:39 PM:   deployId: 67c5c7a7f6b11832d0e6c44a
+5:16:39 PM: ​
+5:16:39 PM: ❯ Current directory
+5:16:39 PM:   /opt/build/repo
+5:16:39 PM: ​
+5:16:39 PM: ❯ Config file
+5:16:39 PM:   /opt/build/repo/netlify.toml
+5:16:39 PM: ​
+5:16:39 PM: ❯ Context
+5:16:39 PM:   production
+5:16:40 PM: ​
+5:16:40 PM: ❯ Using Next.js Runtime - v5.9.4
+5:16:41 PM: No Next.js cache to restore
+5:16:41 PM: ​
+5:16:41 PM: build.command from netlify.toml                               
+5:16:41 PM: ────────────────────────────────────────────────────────────────
+5:16:41 PM: ​
+5:16:41 PM: $ npm run build && cp -r server/functions dist/
+5:16:41 PM: > rest-express@1.0.0 build
+5:16:41 PM: > vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+5:16:42 PM: vite v5.4.14 building for production...
+5:16:42 PM: transforming...
+5:16:46 PM: Failed during stage 'building site': Build script returned non-zero exit code: 2 (https://ntl.fyi/exit-code-2)
+5:16:46 PM: ✓ 1667 modules transformed.
+5:16:46 PM: rendering chunks...
+5:16:46 PM: computing gzip size...
+5:16:46 PM: ../dist/public/index.html                   1.92 kB │ gzip:  0.77 kB
+5:16:46 PM: ../dist/public/assets/index-B-0BNmdW.css   74.81 kB │ gzip: 12.47 kB
+5:16:46 PM: ../dist/public/assets/index-DAnpfTKN.js   267.36 kB │ gzip: 83.37 kB
+5:16:46 PM: ✓ built in 3.29s
+5:16:46 PM:   dist/index.js  6.4kb
+5:16:46 PM: ⚡ Done in 4ms
+5:16:46 PM: ​
+5:16:46 PM: (build.command completed in 4.4s)
+5:16:46 PM: ​
+5:16:46 PM: Plugin "@netlify/plugin-nextjs" failed                        
+5:16:46 PM: ────────────────────────────────────────────────────────────────
+5:16:46 PM: ​
+5:16:46 PM:   Error message
+5:16:46 PM:   Error: Your publish directory was not found at: /opt/build/repo/dist/client. Please check your build settings
+5:16:46 PM: ​
+5:16:46 PM:   Plugin details
+5:16:46 PM:   Package:        @netlify/plugin-nextjs
+5:16:46 PM:   Version:        5.9.4
+5:16:46 PM:   Repository:     git+https://github.com/opennextjs/opennextjs-netlify.git
+5:16:46 PM:   npm link:       https://www.npmjs.com/package/@netlify/plugin-nextjs
+5:16:46 PM:   Report issues:  https://github.com/opennextjs/opennextjs-netlify/issues
+5:16:46 PM: ​
+5:16:46 PM:   Error location
+5:16:46 PM:   In "onBuild" event in "@netlify/plugin-nextjs" from Netlify app
+5:16:46 PM: ​
+5:16:46 PM:   Resolved config
+5:16:46 PM:   build:
+5:16:46 PM:     command: npm run build && cp -r server/functions dist/
+5:16:46 PM:     commandOrigin: config
+5:16:46 PM:     environment:
+5:16:46 PM:       - NODE_VERSION
+5:16:46 PM:       - NETLIFY_NEXT_PLUGIN_SKIP
+5:16:46 PM:     publish: /opt/build/repo/dist/client
+5:16:46 PM:     publishOrigin: config
+5:16:46 PM:   functionsDirectory: /opt/build/repo/dist/functions
+5:16:46 PM:   plugins:
+5:16:46 PM:     - inputs: {}
+5:16:46 PM:       origin: ui
+5:16:46 PM:       package: '@netlify/plugin-nextjs'
+5:16:46 PM:   redirects:
+5:16:46 PM:     - from: /api/*
+      status: 200
+      to: /.netlify/functions/server/:splat
+    - from: /*
+      status: 200
+      to: /index.html
+  redirectsOrigin: config
+5:16:46 PM: Build failed due to a user error: Build script returned non-zero exit code: 2
+5:16:46 PM: Failing build: Failed to build site
+5:16:47 PM: Finished processing build request in 44.645s

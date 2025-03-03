@@ -1,6 +1,6 @@
 [build]
   command = "npm run build && cp -r server/functions dist/"
-  publish = "dist/client"
+  publish = "dist/public"
 
 [functions]
   directory = "dist/functions"
@@ -8,7 +8,7 @@
 # Force Node.js 18.x for compatibility
 [build.environment]
   NODE_VERSION = "18"
-  # Prevents Netlify from recognizing this as a Next.js site
+  # Make sure Next.js plugin doesn't interfere with our Vite build
   NETLIFY_NEXT_PLUGIN_SKIP = "true"
 
 [[redirects]]
