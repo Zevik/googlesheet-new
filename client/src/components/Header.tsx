@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchMainMenu, fetchPages, fetchSettings } from '@/lib/googleSheetsUtils';
+import { fetchMainMenu, fetchPages, fetchSettings, setCurrentSheetUrl } from '@/lib/googleSheetsUtils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -102,7 +102,13 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   // שמירת הקישור החדש
   const saveNewSheetUrl = () => {
     if (newSheetsUrl && newSheetsUrl.includes('docs.google.com/spreadsheets')) {
+      // עדכון הקישור המקומי
       setSheetsUrl(newSheetsUrl);
+      
+      // שמירת הקישור החדש במערכת המרכזית
+      setCurrentSheetUrl(newSheetsUrl);
+      
+      // סגירת החלון
       setIsSheetDialogOpen(false);
       
       // רענון הנתונים לאחר שינוי הקישור

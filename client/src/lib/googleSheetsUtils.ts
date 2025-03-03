@@ -12,6 +12,23 @@ import { queryClient } from './queryClient';
 // שמירת הקישור הנוכחי לגיליון גוגל
 let currentSheetUrl: string | null = null;
 
+// פונקציה להגדרת הקישור הנוכחי לגיליון גוגל
+export const setCurrentSheetUrl = (url: string | null): void => {
+  if (url) {
+    // וידוא שהקישור תקין
+    const sheetIdMatch = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+    if (sheetIdMatch) {
+      currentSheetUrl = url;
+      console.log('Google Sheets URL updated:', url);
+    } else {
+      console.error('Invalid Google Sheets URL format:', url);
+    }
+  } else {
+    // אם מתקבל null, איפוס הקישור הנוכחי
+    currentSheetUrl = null;
+  }
+};
+
 // Generic function to fetch data from Google Sheets via our proxy server
 export const fetchFromGoogleSheets = async (sheetName: string, customSheetUrl: string | null = null): Promise<any[]> => {
   try {
