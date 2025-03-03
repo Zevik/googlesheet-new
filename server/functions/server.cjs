@@ -24,41 +24,65 @@ const routes = new Map();
 
 // Helper to define routes
 function defineRoutes() {
-  // Define API routes
-  app.get('/api/sheets/:sheetName', async (req, res) => {
+  // Define API routes for both direct access and via Netlify Functions
+  const apiHandler = async (req, res) => {
     try {
       const sheetName = req.params.sheetName;
+      console.log('API request for sheet:', sheetName);
       
       // Return some mock data for testing
       const mockData = {
         main_menu: [
           { id: '1', folder_name: 'Home', display_order: 1, active: 'yes', slug: 'home' },
-          { id: '2', folder_name: 'About', display_order: 2, active: 'yes', slug: 'about' }
+          { id: '2', folder_name: 'בלוג', display_order: 2, active: 'yes', slug: 'blog' },
+          { id: '3', folder_name: 'יסודות הבינה המלאכותית', display_order: 3, active: 'yes', slug: 'ai-basics' },
+          { id: '4', folder_name: 'כלים ויישומים', display_order: 4, active: 'yes', slug: 'tools' }
         ],
         pages: [
-          { id: '1', folder_id: '1', page_name: 'Homepage', display_order: 1, active: 'yes', slug: 'home' },
-          { id: '2', folder_id: '2', page_name: 'About Us', display_order: 1, active: 'yes', slug: 'about' }
+          { id: '1', folder_id: '1', page_name: 'דף הבית', display_order: 1, active: 'yes', slug: 'home', meta_description: 'דף הבית של האתר', seo_title: 'דף הבית' },
+          { id: '2', folder_id: '2', page_name: 'בלוג', display_order: 1, active: 'yes', slug: 'blog', meta_description: 'המאמרים שלנו', seo_title: 'בלוג' },
+          { id: '3', folder_id: '3', page_name: 'מה זה בינה מלאכותית?', display_order: 1, active: 'yes', slug: 'what-is-ai', meta_description: 'מבוא לבינה מלאכותית', seo_title: 'מה זה בינה מלאכותית?' },
+          { id: '4', folder_id: '4', page_name: 'כלים מובילים', display_order: 1, active: 'yes', slug: 'leading-tools', meta_description: 'הכלים המובילים בתחום', seo_title: 'כלים מובילים' }
         ],
         content: [
-          { id: '1', page_id: '1', content_type: 'text', display_order: 1, content: 'Welcome to our site', active: 'yes' }
+          { id: '1', page_id: '1', content_type: 'title', display_order: 1, content: 'ברוך הבא לעולם הבינה המלאכותית', active: 'yes' },
+          { id: '2', page_id: '1', content_type: 'text', display_order: 2, content: 'אתר זה נועד לספק מידע וכלים בנושא בינה מלאכותית', active: 'yes' },
+          { id: '3', page_id: '1', content_type: 'image', display_order: 3, content: 'https://i.postimg.cc/8N2WrbLN/LOGOGO.jpg', active: 'yes' }
         ],
         settings: [
-          { key: 'siteName', value: 'My Site' },
-          { key: 'footerText', value: 'Copyright 2023' }
+          { key: 'siteName', value: 'עולם הבינה המלאכותית' },
+          { key: 'logo', value: 'https://i.postimg.cc/8N2WrbLN/LOGOGO.jpg' },
+          { key: 'footerText', value: 'כל הזכויות שמורות לאתר הבינה המלאכותית © 2025' },
+          { key: 'primaryColor', value: '#1A73E8' },
+          { key: 'secondaryColor', value: '#FF9800' },
+          { key: 'language', value: 'he' },
+          { key: 'rtl', value: 'TRUE' },
+          { key: 'contactEmail', value: 'info@aiworld.co.il' },
+          { key: 'phoneNumber', value: '03-1234567' },
+          { key: 'address', value: 'רח\' הטכנולוגיה 10 תל אביב' }
         ],
         templates: []
       };
       
       if (mockData[sheetName]) {
-        return res.json(mockData[sheetName]);
+        const data = mockData[sheetName];
+        console.log(`Returning ${data.length} items for ${sheetName}`);
+        return res.json(data);
       } else {
+        console.log(`Sheet "${sheetName}" not found`);
         return res.status(404).json({ error: 'Sheet not found' });
       }
     } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: 'Internal server error' });
+      console.error('API error:', error);
+      return res.status(500).json({ error: 'Internal server error', details: error.message });
     }
-  });
+  };
+
+  // רישום הנתיב לשני מיקומים אפשריים
+  app.get('/api/sheets/:sheetName', apiHandler);
+  
+  // נתיב נוסף למקרה שהנתיב לא מגיע כמצופה
+  app.get('/.netlify/functions/server/api/sheets/:sheetName', apiHandler);
 }
 
 // Initialize routes
@@ -75,7 +99,15 @@ exports.handler = async function(event, context) {
   // This router will handle all requests to the serverless function
   router.all('*', (req, res) => {
     // Bridge between Netlify event and Express
-    req.path = event.path.replace(/^\/.netlify\/functions\/server/, '') || '/';
+    // נשנה את ההתנהגות כדי שיתמוך גם בניתוב ישיר לנתיב וגם בניתוב דרך פונקציות נטליפיי
+    console.log('Original path:', event.path);
+    const normalizedPath = event.path
+      .replace(/^\/.netlify\/functions\/server/, '') // מסיר את הקידומת של נטליפיי פונקציות
+      .replace(/^\/\.netlify\/functions\/server/, '') // מסיר קידומות אפשריות אחרות
+      || '/';
+    
+    console.log('Normalized path:', normalizedPath);
+    req.path = normalizedPath;
     req.method = event.httpMethod;
     req.headers = event.headers;
     req.query = event.queryStringParameters || {};

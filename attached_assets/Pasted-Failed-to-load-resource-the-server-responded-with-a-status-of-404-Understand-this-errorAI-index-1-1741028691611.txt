@@ -1,0 +1,63 @@
+Failed to load resource: the server responded with a status of 404 ()Understand this errorAI
+index-1ra67XR8.js:78 Error fetching main_menu sheet: Error: Failed to fetch data: 
+    at Yo (index-1ra67XR8.js:78:23753)
+    at async Em (index-1ra67XR8.js:78:24120)
+Yo @ index-1ra67XR8.js:78Understand this errorAI
+/api/sheets/pages:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 ()Understand this errorAI
+index-1ra67XR8.js:78 Error fetching pages sheet: Error: Failed to fetch data: 
+    at Yo (index-1ra67XR8.js:78:23753)
+    at async Cm (index-1ra67XR8.js:78:24322)
+Yo @ index-1ra67XR8.js:78Understand this errorAI
+/api/sheets/settings:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 ()Understand this errorAI
+index-1ra67XR8.js:78 Error fetching settings sheet: Error: Failed to fetch data: 
+    at Yo (index-1ra67XR8.js:78:23753)
+    at async Bu (index-1ra67XR8.js:78:25243)
+Yo @ index-1ra67XR8.js:78Understand this errorAI
+index-1ra67XR8.js:78 Final processed settings: Array(6)
+/api/sheets/content:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 ()Understand this errorAI
+index-1ra67XR8.js:78 Error fetching content sheet: Error: Failed to fetch data: 
+    at Yo (index-1ra67XR8.js:78:23753)
+    at async zw (index-1ra67XR8.js:78:24566)
+Yo @ index-1ra67XR8.js:78Understand this errorAI
+/api/sheets/templates:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 ()Understand this errorAI
+index-1ra67XR8.js:78 Error fetching templates sheet: Error: Failed to fetch data: 
+    at Yo (index-1ra67XR8.js:78:23753)
+    at async $w (index-1ra67XR8.js:78:25924)
+Yo @ index-1ra67XR8.js:78Understand this errorAI
+/api/sheets/main_menu:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 ()Understand this errorAI
+index-1ra67XR8.js:78 Error fetching main_menu sheet: Error: Failed to fetch data: 
+    at Yo (index-1ra67XR8.js:78:23753)
+    at async Em (index-1ra67XR8.js:78:24120)
+Yo @ index-1ra67XR8.js:78Understand this errorAI
+/api/sheets/settings:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 ()Understand this errorAI
+index-1ra67XR8.js:78 Error fetching settings sheet: Error: Failed to fetch data: 
+    at Yo (index-1ra67XR8.js:78:23753)
+    at async Bu (index-1ra67XR8.js:78:25243)
+Yo @ index-1ra67XR8.js:78Understand this errorAI
+index-1ra67XR8.js:78 Final processed settings: Array(6)
+/api/sheets/pages:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 ()Understand this errorAI
+index-1ra67XR8.js:78 Error fetching pages sheet: Error: Failed to fetch data: 
+    at Yo (index-1ra67XR8.js:78:23753)
+    at async Cm (index-1ra67XR8.js:78:24322)
+Yo @ index-1ra67XR8.js:78Understand this errorAI
