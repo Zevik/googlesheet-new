@@ -149,10 +149,53 @@ export const fetchContent = async (customSheetUrl: string | null = null): Promis
 // Fetch settings sheet
 export const fetchSettings = async (customSheetUrl: string | null = null): Promise<Setting[]> => {
   const data = await fetchFromGoogleSheets('settings', customSheetUrl);
-  return data.map(item => ({
-    key: item.key,
-    value: item.value
-  }));
+  
+  console.log('Raw settings data:', data);
+  
+  // Check if we have data in the standard key-value format
+  if (data.length > 0 && data[0].key !== undefined && data[0].value !== undefined) {
+    return data.map(item => ({
+      key: item.key || '',
+      value: item.value || ''
+    }));
+  }
+  
+  // Handle special case for the settings sheet
+  // The settings sheet in this format has each row representing a single setting
+  // with the key in the first column and value in the second column
+  const settings: Setting[] = [];
+  
+  for (const row of data) {
+    const entries = Object.entries(row);
+    if (entries.length >= 2) {
+      // Get the first two columns from each row
+      const key = String(entries[0][1]).trim();
+      const value = String(entries[1][1]).trim();
+      
+      // Skip header row or empty entries
+      if (key !== 'key' && key && value && key !== 'value') {
+        settings.push({ key, value });
+      }
+    }
+  }
+  
+  // Add additional settings from separate rows like "address"
+  data.forEach(row => {
+    const entries = Object.entries(row);
+    if (entries.length >= 2) {
+      const firstCol = String(entries[0][1]).trim();
+      const secondCol = String(entries[1][1]).trim();
+      
+      // Check if this is a named setting (not the header row)
+      if (firstCol && firstCol !== 'key' && secondCol && secondCol !== 'value') {
+        // Add as a separate setting
+        settings.push({ key: firstCol, value: secondCol });
+      }
+    }
+  });
+  
+  console.log('Processed settings:', settings);
+  return settings;
 };
 
 // Fetch templates sheet
