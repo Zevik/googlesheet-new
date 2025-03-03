@@ -55,14 +55,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-neutral-800 mb-2">
-          {getSetting('siteName')}
-        </h1>
-        <p className="text-neutral-500">
-          {getSetting('siteDescription')}
-        </p>
-      </div>
+      {/* כותרת הראשית הוסרה כי היא מופיעה כבר בכותרת העליונה */}
 
       <h2 className="text-2xl font-bold text-neutral-800 mt-8 mb-4">קטגוריות</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
