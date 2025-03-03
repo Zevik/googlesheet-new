@@ -24,10 +24,60 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
     return { level: 2, content: titleText }; // ברירת מחדל אם אין פורמט מיוחד
   };
 
+  // פונקציה להמרת כותרת ורמה מפורמט משולב כמו "h2: כותרת" או מפורמט מופרד (content = "כותרת", title = "h2")
+  const extractTitleContent = (block: ContentBlockType) => {
+    // נסה את שדה title קודם, זה המקום הסטנדרטי לכותרות
+    if (block.title) {
+      // אם יש פורמט של "h2: כותרת" בשדה title
+      const headingMatch = block.title.match(/^h([1-6]):\s*(.+)$/);
+      if (headingMatch) {
+        return {
+          level: parseInt(headingMatch[1]),
+          content: headingMatch[2].trim()
+        };
+      }
+      
+      // אם אין פורמט מיוחד בשדה title, בדוק אם יש בשדה content
+      if (block.content) {
+        const contentHeadingMatch = block.content.match(/^h([1-6]):\s*(.+)$/);
+        if (contentHeadingMatch) {
+          return {
+            level: parseInt(contentHeadingMatch[1]),
+            content: contentHeadingMatch[2].trim()
+          };
+        }
+        
+        // אם אין בשני השדות, השתמש ב-title כתוכן ובברירת מחדל h2
+        return { level: 2, content: block.title.trim() };
+      }
+      
+      // אין פורמט מיוחד ואין שדה content, השתמש בשדה title כתוכן
+      return { level: 2, content: block.title.trim() };
+    }
+    
+    // אם אין שדה title אבל יש content
+    if (block.content) {
+      // בדוק אם יש פורמט מיוחד בשדה content
+      const contentHeadingMatch = block.content.match(/^h([1-6]):\s*(.+)$/);
+      if (contentHeadingMatch) {
+        return {
+          level: parseInt(contentHeadingMatch[1]),
+          content: contentHeadingMatch[2].trim()
+        };
+      }
+      
+      // אין פורמט מיוחד, השתמש בשדה content כתוכן
+      return { level: 2, content: block.content.trim() };
+    }
+    
+    // אין שדה title ואין שדה content, השתמש בכותרת ריקה
+    return { level: 2, content: '' };
+  };
+
   switch (contentType) {
     case 'title':
     case 'כותרת':
-      const titleInfo = parseTitleContent(block.title || block.content || '');
+      const titleInfo = extractTitleContent(block);
       
       // בחירת גודל הגופן והשוליים על פי רמת הכותרת
       let titleClassName = "font-bold text-neutral-800 ";

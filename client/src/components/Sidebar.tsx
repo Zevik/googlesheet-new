@@ -138,10 +138,17 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
             <span>דף הבית</span>
           </Link>
           
-          {/* תפריט תיקיות - מסנן כפילויות */}
+          {/* תפריט תיקיות - מציג קטגוריות ללא כפילויות */}
           {filteredMenuItems
-            // סינון של תיקיות כפולות - "דף הבית" וגם "צור קשר"
-            .filter(folder => folder.folder_name !== 'דף הבית' && folder.folder_name !== 'צור קשר' && folder.folder_name !== 'Contact') 
+            // מזהה קטגוריות ייחודיות לפי שם התיקייה
+            .filter((folder, index, self) => 
+              // מסנן קטגוריות כפולות על פי שם התיקייה
+              index === self.findIndex(f => f.folder_name === folder.folder_name) &&
+              // מסנן גם תיקיות מיוחדות שמופיעות כפתורים נפרדים
+              folder.folder_name !== 'דף הבית' && 
+              folder.folder_name !== 'צור קשר' && 
+              folder.folder_name !== 'Contact'
+            ) 
             .map((folder) => {
               const folderPages = getFolderPages(folder.id);
               const isActive = isFolderActive(folder);
