@@ -33,13 +33,39 @@ const FolderPage: React.FC = () => {
       // Convert page.id to a string in case it comes as a number from the API
       const pageIdStr = String(page.id);
       
-      // Log all page IDs in the content for debugging
+      // Log all page IDs and active status in the content for debugging
       console.log('All content page_ids:', 
         allContent.map(block => block.page_id).join(', '));
+        
+      // לבדוק את מבנה הנתונים המלא
+      console.log('Data structure sample:', 
+        allContent.length > 0 ? JSON.stringify(allContent[0], null, 2) : 'No content');
       
       // תחילה מנסים למצוא תוכן לפי מזהה עמוד
+      // הוספת יותר לוגים לצורך דיבוג
       const filteredContent = allContent
-        .filter(block => String(block.page_id) === pageIdStr && block.active === 'yes')
+        .filter(block => {
+          // המרת שני המזהים למספרים לצורך השוואה מדויקת
+          const blockPageId = Number(block.page_id);
+          const currentPageId = Number(pageIdStr);
+          
+          // בדיקה האם התוכן פעיל ומתאים למזהה העמוד 
+          // תיקון לערכי active חסרים - נחשיב כל ערך חסר כפעיל
+          let isActive = true;  // ברירת מחדל - פעיל
+          
+          if (block.active !== undefined && block.active !== null) {
+            // אם יש ערך, מבדוק שהוא 'yes' או 'כן' (לא תלוי באותיות גדולות/קטנות)
+            isActive = block.active.toLowerCase() === 'yes' || block.active.toLowerCase() === 'כן';
+          }
+          
+          const isMatch = blockPageId === currentPageId && isActive;
+          
+          if (blockPageId === currentPageId) {
+            console.log('Found matching page_id:', blockPageId, 'Active:', block.active, 'Match:', isMatch);
+          }
+          
+          return isMatch;
+        })
         .sort((a, b) => a.display_order - b.display_order);
       
       console.log('Found content items:', filteredContent.length);

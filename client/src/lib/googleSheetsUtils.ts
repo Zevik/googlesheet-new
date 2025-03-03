@@ -113,7 +113,8 @@ export const fetchContent = async (customSheetUrl: string | null = null): Promis
       content: item.content,
       description: item.description,
       title: item.title,
-      active: item.active
+      // Fix for missing 'active' field - consider undefined/null as 'yes'
+      active: item.active === undefined || item.active === null ? 'yes' : item.active
     };
   });
 };
