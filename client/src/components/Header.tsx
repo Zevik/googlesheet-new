@@ -34,11 +34,11 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   };
 
   return (
-    <header className="bg-white shadow z-20 sticky top-0">
-      <div className="flex items-center justify-between px-4 py-2">
+    <header className="bg-gradient-to-l from-blue-600 to-blue-500 shadow-md z-20 sticky top-0 text-white">
+      <div className="flex items-center justify-between px-6 py-3">
         <div className="flex items-center">
           <button 
-            className="md:hidden ml-4 text-neutral-500" 
+            className="md:hidden ml-4 text-white hover:bg-blue-700 p-1 rounded transition-colors" 
             onClick={toggleSidebar}
           >
             <span className="material-icons">menu</span>
@@ -47,9 +47,9 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
           <nav className="text-sm breadcrumbs hidden sm:block">
             <ol className="flex items-center">
               <li className="flex items-center">
-                <a href="/" className="text-neutral-500 hover:text-primary">ראשי</a>
+                <a href="/" className="text-white hover:text-blue-100">ראשי</a>
                 {(currentFolder || currentPage) && (
-                  <span className="material-icons text-neutral-300 mx-1 text-sm">chevron_left</span>
+                  <span className="material-icons text-blue-200 mx-1 text-sm">chevron_left</span>
                 )}
               </li>
               
@@ -57,19 +57,19 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                 <li className="flex items-center">
                   <a 
                     href={`/${currentFolder.slug}`} 
-                    className="text-neutral-500 hover:text-primary"
+                    className="text-white hover:text-blue-100"
                   >
                     {currentFolder.folder_name}
                   </a>
                   {currentPage && (
-                    <span className="material-icons text-neutral-300 mx-1 text-sm">chevron_left</span>
+                    <span className="material-icons text-blue-200 mx-1 text-sm">chevron_left</span>
                   )}
                 </li>
               )}
               
               {currentPage && (
                 <li>
-                  <span className="font-medium text-primary">{currentPage.page_name}</span>
+                  <span className="font-medium text-white">{currentPage.page_name}</span>
                 </li>
               )}
             </ol>
