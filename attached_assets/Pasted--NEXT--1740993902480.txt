@@ -1,0 +1,190 @@
+צור אתר בNEXT שמיועד לפריסה בנטליפיי שנבנה כולו מתוך הגדרות בגוגלשיטס
+
+קריאה של נתונים ללא מפתחות או הרשאות. רק ככה מגליון ציבורי
+import React, { useState, useEffect } from 'react';
+
+const SHEET_ID = 'YOUR_SHEET_ID'; // *החלף במזהה הגיליון שלך*
+const SHEET_NAME = 'שם גיליון';     // *החלף בשם הגיליון שלך*
+
+// פונקציה גנרית לקבלת נתונים מגוגל שיטס
+const fetchFromGoogleSheets = async (sheetId: string, sheetName: string) => {
+  const url = https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)};
+  const response = await fetch(url);
+  const text = await response.text();
+  const jsonText = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);/)[1];
+  const json = JSON.parse(jsonText);
+  return json.table.rows.slice(1).map((row: any) => row.c.map((cell: any) => cell?.v || ""));
+};
+
+const GoogleSheetDisplay = () => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const rows = await fetchFromGoogleSheets(SHEET_ID, SHEET_NAME);
+        setData(rows);
+        setLoading(false);
+      } catch (e) {
+        setError(e);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) return <div>טוען נתונים...</div>;
+  if (error) return <div>שגיאה בטעינת נתונים: {error.message}</div>;
+
+  return (
+    <div>
+      <ul>
+        {data.map((row, index) => (
+          <li key={index}>{row.join(' | ')}</li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default GoogleSheetDisplay;
+
+מבנה ואפיון הגוגלשיטס
+1. Sheet: main_menu
+Purpose: Defines site navigation and folder structure.
+Columns:
+id: Unique identifier (numeric).
+folder_name: Name of the folder.
+display_order: Numeric order for displaying folders.
+active: Boolean flag – values "yes" or "no" (controls visibility).
+slug: URL-friendly string.
+short_description: Brief description of the folder.
+Usage: The Next.js site will use this sheet to build the main navigation menu and folder hierarchy.
+2. Sheet: pages
+Purpose: Stores page-level metadata.
+Columns:
+id: Unique identifier for each page.
+folder_id: Foreign key linking to the main_menu's id.
+page_name: Display name of the page.
+display_order: Numeric order for page listing within its folder.
+active: Boolean flag – values "yes" or "no" (controls whether the page is published).
+slug: URL-friendly string for the page.
+meta_description: SEO meta description text.
+seo_title: SEO title for the page.
+Usage: Data from this sheet will be used to render pages, set up routing, and configure SEO elements.
+3. Sheet: content
+Purpose: Contains content elements for each page.
+Columns:
+id: Unique identifier for each content block.
+page_id: Foreign key linking to the pages' id.
+content_type: Defines the type of content (values in English such as "text", "title", "image", "youtube", "link", "list", "table", "separator", "file").
+display_order: Numeric order for arranging content blocks on the page.
+content: The actual content data (text, URL, etc.).
+description: Additional info for media (e.g., image alt text or video description).
+title: Optional title for the content block.
+active: Boolean flag – values "yes" or "no" (controls if the content is displayed).
+Usage: The website will iterate through the content blocks for a given page (using the page_id foreign key) and render them in the specified order.
+4. Sheet: settings
+Purpose: Holds global configuration settings for the website.
+Columns:
+key: The setting identifier.
+value: The setting value.
+Usage: The Next.js site will load these values at runtime to configure site-wide parameters (e.g., site name, description, logo URL).
+5. Sheet: templates
+Purpose: Defines page template configurations.
+Columns:
+id: Unique identifier for the template.
+template_name: Name of the template.
+description: Brief description of the template’s layout or function.
+Usage: Template data will be used to determine the layout and style for each page based on the template configuration.
+Data Integration & Website Implementation
+Data Retrieval:
+The website will connect to the Google Sheets API using the exact sheet names and headers. Each sheet’s data is mapped to the corresponding Next.js components.
+
+Mapping:
+
+Navigation: Built from the main_menu sheet.
+Page Metadata & Routing: Sourced from the pages sheet.
+Content Blocks: Dynamically rendered based on entries from the content sheet. The content type values (in English) determine the component (e.g., TextBlock, ImageBlock, etc.).
+Global Settings: Loaded from the settings sheet to configure site-wide elements.
+Templates: Applied from the templates sheet to set page layouts.
+Boolean Fields:
+The "active" fields in main_menu, pages, and content must strictly use "yes" or "no" to control element visibility.
+
+Order & Display:
+The display_order columns in all sheets will determine the sequence in which items are rendered on the website.
+
+This specification provides a clear, concise mapping between the Google Sheets structure and the Next.js website's data-driven rendering logic.
+
+
+
+
+
+
+
+You said:
+
+
+
+main_menu
+
+Headers: id, folder_name, display_order, active, slug, short_description
+Notes: The active column is expected to use "yes" or "no" values.
+pages
+
+Headers: id, folder_id, page_name, display_order, active, slug, meta_description, seo_title
+Notes: The active column should use "yes" or "no" values.
+content
+
+Headers: id, page_id, content_type, display_order, content, description, title, active
+Notes: The content_type values are defined in English (e.g., text, title, image, youtube, link, list, etc.) and the active column uses "yes" or "no".
+settings
+
+Headers: key, value
+templates
+
+Headers: id, template_name, description
+
+
+Google Sheets Data Source:
+
+Sheets & Structure:
+main_menu: Contains navigation details.
+Columns: id, folder_name, display_order, active (values "yes" or "no"), slug, short_description.
+pages: Contains page-level metadata.
+Columns: id, folder_id, page_name, display_order, active (yes/no), slug, meta_description, seo_title.
+content: Contains dynamic content blocks for each page.
+Columns: id, page_id, content_type (in English: text, title, image, youtube, link, list, table, separator, file), display_order, content, description, title, active (yes/no).
+settings: Contains global site configuration.
+Columns: key, value.
+templates: Contains page layout templates.
+Columns: id, template_name, description.
+Data Mapping & Usage:
+
+Navigation:
+Read main_menu and build the site’s navigation. Only include entries with active set to "yes".
+Page Rendering:
+Retrieve page metadata from the pages sheet. Use the folder_id to group pages under corresponding navigation items.
+Filter pages by the active column.
+Content Blocks:
+For each active page (from the pages sheet), query the content sheet using page_id.
+Render each content block in the order specified by display_order.
+Select the appropriate component based on the English content_type (e.g., TextBlock for "text", TitleBlock for "title", ImageBlock for "image", etc.).
+Global Settings:
+Load all key/value pairs from the settings sheet to configure site-wide settings such as site name, description, logo URL, etc.
+Template Application:
+Use the templates sheet to determine the layout for each page based on the template configuration.
+Development Requirements:
+
+Responsive Design:
+Ensure the website is mobile-first and responsive on all devices with modern UI/UX principles.
+
+
+זה הID
+1IvAFeW8EUKR_kdzX9mpU9PW9BrTDAjS7pC35Gzn2_dI
+
+
+
