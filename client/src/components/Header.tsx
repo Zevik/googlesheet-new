@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'wouter';
-import { useQuery } from '@tanstack/react-query';
-import { fetchMainMenu, fetchPages, refreshData } from '@/lib/googleSheetsUtils';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { fetchMainMenu, fetchPages, fetchSettings } from '@/lib/googleSheetsUtils';
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -16,27 +16,69 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   // Fetch menu items
   const { data: menuItems = [] } = useQuery({
     queryKey: ['main_menu'],
-    queryFn: fetchMainMenu
+    queryFn: () => fetchMainMenu()
   });
 
   // Fetch pages
   const { data: pages = [] } = useQuery({
     queryKey: ['pages'],
-    queryFn: fetchPages
+    queryFn: () => fetchPages()
+  });
+  
+  // Fetch settings
+  const { data: settings = [] } = useQuery({
+    queryKey: ['settings'],
+    queryFn: () => fetchSettings()
   });
 
   // Find current folder and page
   const currentFolder = menuItems.find(folder => folder.slug === folderSlug);
   const currentPage = pages.find(page => page.slug === pageSlug);
 
+  const queryClient = useQueryClient();
+  
   const handleRefresh = () => {
-    refreshData();
+    // רענון כל המידע מהשרת
+    queryClient.invalidateQueries({ queryKey: ['main_menu'] });
+    queryClient.invalidateQueries({ queryKey: ['pages'] });
+    queryClient.invalidateQueries({ queryKey: ['settings'] });
+    queryClient.invalidateQueries({ queryKey: ['content'] });
+    queryClient.invalidateQueries({ queryKey: ['templates'] });
   };
 
+  // Find site settings
+  const siteName = settings.find((s: any) => s.key === 'siteName')?.value;
+  const logo = settings.find((s: any) => s.key === 'logo')?.value;
+
   return (
-    <header className="bg-gradient-to-l from-blue-600 to-blue-500 shadow-md z-20 sticky top-0 text-white">
-      <div className="flex items-center justify-between px-6 py-3">
+    <header className="bg-gradient-to-l from-blue-600 to-blue-500 shadow-md z-20 sticky top-0 text-white w-full">
+      {/* לוגו ושם האתר */}
+      <div className="flex items-center justify-between px-6 py-3 max-w-7xl mx-auto">
         <div className="flex items-center">
+          {logo && (
+            <img src={logo} alt={siteName || 'לוגו האתר'} className="h-10 w-auto ml-3" />
+          )}
+          {siteName && (
+            <h1 className="text-xl font-bold text-white">{siteName}</h1>
+          )}
+        </div>
+        
+        <div className="flex items-center">
+          {/* כפתור עריכת מקור נתונים */}
+          <button
+            className="flex items-center text-white hover:bg-blue-700 p-2 rounded transition-colors ml-3"
+            onClick={handleRefresh}
+            aria-label="עריכת גיליון נתונים"
+          >
+            <span className="material-icons ml-1">edit_note</span>
+            <span className="hidden md:inline">ערוך גיליון נתונים</span>
+          </button>
+        </div>
+      </div>
+      
+      {/* תפריט ניווט */}
+      <div className="border-t border-blue-400 bg-blue-600">
+        <div className="flex items-center px-6 py-2 max-w-7xl mx-auto">
           <button 
             className="md:hidden ml-4 text-white hover:bg-blue-700 p-1 rounded transition-colors" 
             onClick={toggleSidebar}
@@ -44,7 +86,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
             <span className="material-icons">menu</span>
           </button>
           
-          <nav className="text-sm breadcrumbs hidden sm:block">
+          <nav className="text-sm breadcrumbs">
             <ol className="flex items-center">
               <li className="flex items-center">
                 <a href="/" className="text-white hover:text-blue-100">ראשי</a>
@@ -74,31 +116,6 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
               )}
             </ol>
           </nav>
-        </div>
-        
-        <div className="flex items-center">
-          {/* כפתור רענון הוסתר 
-          <button 
-            className="p-2 rounded-full hover:bg-neutral-50 ml-2"
-            onClick={handleRefresh}
-          >
-            <span className="material-icons text-neutral-500">refresh</span>
-          </button>
-          */}
-          {/* כפתור עזרה והאווטר הוסתרו 
-          <button className="p-2 rounded-full hover:bg-neutral-50 ml-2">
-            <span className="material-icons text-neutral-500">help_outline</span>
-          </button>
-          <div className="relative">
-            <button className="flex items-center p-1 rounded-full hover:bg-neutral-50">
-              <img 
-                src="https://i.pravatar.cc/40?img=68" 
-                alt="User Avatar" 
-                className="w-8 h-8 rounded-full" 
-              />
-            </button>
-          </div>
-          */}
         </div>
       </div>
     </header>

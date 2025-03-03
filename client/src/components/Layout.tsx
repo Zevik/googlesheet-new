@@ -30,17 +30,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="flex min-h-screen">
-      <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+    <div className="flex flex-col min-h-screen">
+      {/* כותרת עליונה מעל הכל */}
+      <Header toggleSidebar={toggleSidebar} />
       
-      <div className="flex-1 flex flex-col">
-        <Header toggleSidebar={toggleSidebar} />
+      <div className="flex flex-1">
+        {/* סרגל צידי */}
+        <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
         
-        <main className="flex-1 p-4 md:p-8 max-w-5xl mx-auto w-full">
-          {children}
-        </main>
-        
-        <Footer footerText={settings.find((s: { key: string, value: string }) => s.key === 'footerText')?.value || '© כל הזכויות שמורות'} />
+        <div className="flex-1 flex flex-col">
+          <main className="flex-1 p-4 md:p-8 w-full">
+            {children}
+          </main>
+          
+          <Footer footerText={settings.find((s: { key: string, value: string }) => s.key === 'footerText')?.value || '© כל הזכויות שמורות'} />
+        </div>
       </div>
     </div>
   );
