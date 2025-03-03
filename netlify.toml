@@ -1,5 +1,5 @@
 [build]
-  command = "npm run build && cp -r server/functions dist/ && echo 'Build completed successfully'"
+  command = "npm run build && mkdir -p dist/functions && cp server/functions/server.cjs dist/functions/server.js && cp server/functions/vite.cjs dist/functions/vite.cjs && echo 'Build completed successfully'"
   publish = "dist/public"
   ignore_warnings = true
 

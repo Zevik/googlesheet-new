@@ -22,11 +22,17 @@ app.use(express.static(path.resolve(__dirname, '../../public')));
 // Parse JSON request bodies
 app.use(express.json());
 
-// Register API routes
-await registerRoutes(app);
+// Routes will be registered in the handler function
+let routesRegistered = false;
 
 // For Netlify Functions - create a serverless handler
 export async function handler(event, context) {
+  // Register routes if not done yet
+  if (!routesRegistered) {
+    await registerRoutes(app);
+    routesRegistered = true;
+  }
+
   // Log the incoming request for debugging
   log(`Request: ${event.path} [${event.httpMethod}]`);
 
