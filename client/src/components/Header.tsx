@@ -77,12 +77,15 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
         </div>
         
         <div className="flex items-center">
+          {/* כפתור רענון הוסתר 
           <button 
             className="p-2 rounded-full hover:bg-neutral-50 ml-2"
             onClick={handleRefresh}
           >
             <span className="material-icons text-neutral-500">refresh</span>
           </button>
+          */}
+          {/* כפתור עזרה והאווטר הוסתרו 
           <button className="p-2 rounded-full hover:bg-neutral-50 ml-2">
             <span className="material-icons text-neutral-500">help_outline</span>
           </button>
@@ -95,6 +98,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
               />
             </button>
           </div>
+          */}
         </div>
       </div>
     </header>
