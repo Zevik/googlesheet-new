@@ -102,8 +102,8 @@ export const fetchContent = async (customSheetUrl: string | null = null): Promis
       else if (contentTypeStr === 'טבלה' || contentTypeStr === 'table') normalizedContentType = 'table';
     }
     
-    // For debugging
-    console.log("Content type:", item.content_type, "Normalized:", normalizedContentType);
+    // כבר אין צורך בלוג הזה
+    // console.log("Content type:", item.content_type, "Normalized:", normalizedContentType);
     
     return {
       id: String(item.id),

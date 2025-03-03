@@ -1,10 +1,11 @@
-import React from 'react';
-import { Link } from 'wouter';
+import React, { useEffect } from 'react';
+import { Link, useLocation } from 'wouter';
 import { Card, CardContent } from '@/components/ui/card';
 import useGoogleSheets from '@/hooks/useGoogleSheets';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const Home: React.FC = () => {
+  const [location] = useLocation();
   const { 
     mainMenu, 
     getSetting, 
@@ -13,6 +14,13 @@ const Home: React.FC = () => {
     hasError, 
     errors 
   } = useGoogleSheets();
+  
+  // גלילה לראש העמוד כשמשתנה ה-URL
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // עדכון כותרת הדף מההגדרות
+    document.title = getSetting('siteName') || '';
+  }, [location, getSetting]);
 
   if (isLoading) {
     return (
