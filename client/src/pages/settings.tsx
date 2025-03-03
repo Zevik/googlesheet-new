@@ -19,7 +19,7 @@ const Settings: React.FC = () => {
   const { toast } = useToast();
   const [sheetUrl, setSheetUrl] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
 
   // הגדר את הערך ההתחלתי של ה-URL מהגדרות או מגיליון ברירת מחדל
   useEffect(() => {
@@ -62,11 +62,13 @@ const Settings: React.FC = () => {
       });
 
       // רענן את הנתונים מהמקור החדש
-      await refreshData();
+      if (refreshData) {
+        await refreshData(sheetUrl);
+      }
       
       // חזור לעמוד הראשי לאחר רענון
       setTimeout(() => {
-        navigate('/');
+        setLocation('/');
       }, 1500);
     } catch (error) {
       console.error("Error saving sheet URL:", error);
@@ -154,7 +156,7 @@ const Settings: React.FC = () => {
         <CardFooter className="flex justify-between border-t pt-4">
           <Button
             variant="outline"
-            onClick={() => navigate('/')}
+            onClick={() => setLocation('/')}
           >
             ביטול
           </Button>
