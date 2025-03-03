@@ -8,7 +8,11 @@ interface ContentBlockProps {
 }
 
 const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
-  switch (block.content_type) {
+  // Convert content_type to lowercase for case-insensitive comparison
+  const contentType = (block.content_type || '').toLowerCase();
+  console.log('Content type:', block.content_type, 'Lowercase:', contentType);
+  
+  switch (contentType) {
     case 'title':
     case 'כותרת':
       return (

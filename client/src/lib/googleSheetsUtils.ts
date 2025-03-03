@@ -76,16 +76,24 @@ export const fetchPages = async (): Promise<Page[]> => {
 // Fetch content sheet
 export const fetchContent = async (): Promise<ContentBlock[]> => {
   const data = await fetchFromGoogleSheets('content');
-  return data.map(item => ({
-    id: String(item.id),
-    page_id: String(item.page_id),
-    content_type: item.content_type,
-    display_order: Number(item.display_order),
-    content: item.content,
-    description: item.description,
-    title: item.title,
-    active: item.active
-  }));
+  return data.map(item => {
+    // For debugging
+    if (item.content_type) {
+      console.log('Original content_type:', item.content_type);
+    }
+    
+    return {
+      id: String(item.id),
+      page_id: String(item.page_id),
+      // Ensure content_type is properly processed
+      content_type: item.content_type ? String(item.content_type).toLowerCase() : '',
+      display_order: Number(item.display_order),
+      content: item.content,
+      description: item.description,
+      title: item.title,
+      active: item.active
+    };
+  });
 };
 
 // Fetch settings sheet
