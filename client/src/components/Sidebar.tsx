@@ -92,8 +92,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
   }, [location, activeMenuItems.length]);
 
   return (
-    <aside className={`fixed md:relative z-30 bg-white shadow-lg md:shadow-none w-64 md:w-72 h-screen transition-all duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`}>
-      <div className="flex items-center justify-between p-4 border-b">
+    <aside className={`fixed md:relative z-30 bg-white shadow-lg md:shadow-none w-64 md:w-72 h-screen flex flex-col transition-all duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}`}>
+      <div className="flex items-center justify-between p-4 border-b shrink-0">
         <div className="flex items-center">
           <img src={logoUrl} alt="Logo" className="w-10 h-10 rounded" />
           <h1 className="text-xl font-bold mr-2 text-primary">{siteName}</h1>
@@ -106,7 +106,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
         </button>
       </div>
       
-      <div className="p-4">
+      <div className="p-4 flex-1 overflow-y-auto">
         <div className="relative mb-4">
           <span className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
             <span className="material-icons text-neutral-300">search</span>
@@ -123,7 +123,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
         <nav>
           <h2 className="text-sm uppercase font-bold text-neutral-400 mb-2">תפריט ראשי</h2>
           
-          {/* בית - הוספנו קישור ראשי לדף הבית */}
+          {/* בית - קישור ראשי לדף הבית */}
           <Link 
             href="/"
             className={`flex items-center p-2 rounded-md mb-2 ${
@@ -146,6 +146,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
               index === self.findIndex(f => f.folder_name === folder.folder_name) &&
               // מסנן גם תיקיות מיוחדות שמופיעות כפתורים נפרדים
               folder.folder_name !== 'דף הבית' && 
+              folder.folder_name !== 'בית' &&
               folder.folder_name !== 'צור קשר' && 
               folder.folder_name !== 'Contact'
             ) 
