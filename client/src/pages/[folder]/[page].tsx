@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useRoute, Link } from 'wouter';
+import { useRoute, Link, useLocation } from 'wouter';
 import { Skeleton } from '@/components/ui/skeleton';
 import ContentBlock from '@/components/ContentBlock';
 import useGoogleSheets from '@/hooks/useGoogleSheets';
@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 
 const FolderPage: React.FC = () => {
   const [match, params] = useRoute<{ folder: string; page: string }>('/:folder/:page');
+  const [location] = useLocation();
   const { 
     getFolderBySlug, 
     getPageBySlug, 
@@ -16,6 +17,11 @@ const FolderPage: React.FC = () => {
     hasError, 
     errors 
   } = useGoogleSheets();
+  
+  // גלילה לראש העמוד כשמשתנה ה-URL
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [location]);
   
   const folderSlug = params?.folder || '';
   const pageSlug = params?.page || '';
