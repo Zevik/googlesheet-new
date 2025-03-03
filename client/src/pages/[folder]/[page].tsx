@@ -27,9 +27,23 @@ const FolderPage: React.FC = () => {
   // This eliminates the infinite update
   const content = React.useMemo(() => {
     if (page && page.id) {
-      return allContent
-        .filter(block => block.page_id === page.id && block.active === 'yes')
+      // Debug the page ID
+      console.log('Looking for content for page ID:', page.id);
+      
+      // Convert page.id to a string in case it comes as a number from the API
+      const pageIdStr = String(page.id);
+      
+      // Log all page IDs in the content for debugging
+      console.log('All content page_ids:', 
+        allContent.map(block => block.page_id).join(', '));
+      
+      const filteredContent = allContent
+        .filter(block => String(block.page_id) === pageIdStr && block.active === 'yes')
         .sort((a, b) => a.display_order - b.display_order);
+      
+      console.log('Found content items:', filteredContent.length);
+      
+      return filteredContent;
     }
     return [];
   }, [page, allContent]);
