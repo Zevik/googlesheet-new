@@ -156,41 +156,59 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
               
               return (
                 <div className="mb-4" key={folder.id}>
-                  <div 
-                    className={`flex items-center justify-between p-2 rounded-md hover:bg-neutral-50 cursor-pointer mb-2 ${isActive ? 'bg-primary/5' : ''}`}
-                    onClick={() => toggleFolder(folder.id)}
-                  >
-                    <div className="flex items-center">
+                  {/* בדיקה אם יש רק דף אחד בתיקייה, אם כן - הצג קישור ישיר */}
+                  {folderPages.length === 1 ? (
+                    <Link 
+                      href={`/${folder.slug}/${folderPages[0].slug}`}
+                      className={`flex items-center p-2 rounded-md mb-2 ${
+                        isPageActive(folder, folderPages[0]) 
+                          ? 'bg-primary/10 hover:bg-primary/15 text-primary font-medium' 
+                          : 'hover:bg-neutral-50 text-neutral-500'
+                      }`}
+                    >
                       <span className="material-icons text-primary ml-2">folder</span>
                       <span className="font-medium">{folder.folder_name}</span>
-                    </div>
-                    <span className={`material-icons text-neutral-300 transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
-                      expand_more
-                    </span>
-                  </div>
-                  
-                  <div className={`mr-5 pr-2 border-r-2 border-primary space-y-1 ${!isExpanded ? 'hidden' : ''}`}>
-                    {folderPages.map((page) => {
-                      const isActive = isPageActive(folder, page);
+                    </Link>
+                  ) : (
+                    /* אם יש יותר מדף אחד, הצג תפריט נפתח */
+                    <>
+                      <div 
+                        className={`flex items-center justify-between p-2 rounded-md hover:bg-neutral-50 cursor-pointer mb-2 ${isActive ? 'bg-primary/5' : ''}`}
+                        onClick={() => toggleFolder(folder.id)}
+                      >
+                        <div className="flex items-center">
+                          <span className="material-icons text-primary ml-2">folder</span>
+                          <span className="font-medium">{folder.folder_name}</span>
+                        </div>
+                        <span className={`material-icons text-neutral-300 transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
+                          expand_more
+                        </span>
+                      </div>
                       
-                      return (
-                        <Link 
-                          key={page.id}
-                          href={`/${folder.slug}/${page.slug}`}
-                          className={`flex items-center p-2 rounded-md ${
-                            isActive 
-                              ? 'bg-primary/10 hover:bg-primary/15 text-primary font-medium' 
-                              : 'hover:bg-neutral-50 text-neutral-500'
-                          }`}
-                        >
-                          <span className={`material-icons text-sm ml-2 ${isActive ? 'text-primary' : 'text-neutral-300'}`}>
-                            description
-                          </span>
-                          <span>{page.page_name}</span>
-                        </Link>
-                      );
-                    })}
-                  </div>
+                      <div className={`mr-5 pr-2 border-r-2 border-primary space-y-1 ${!isExpanded ? 'hidden' : ''}`}>
+                        {folderPages.map((page) => {
+                          const isActive = isPageActive(folder, page);
+                          
+                          return (
+                            <Link 
+                              key={page.id}
+                              href={`/${folder.slug}/${page.slug}`}
+                              className={`flex items-center p-2 rounded-md ${
+                                isActive 
+                                  ? 'bg-primary/10 hover:bg-primary/15 text-primary font-medium' 
+                                  : 'hover:bg-neutral-50 text-neutral-500'
+                              }`}
+                            >
+                              <span className={`material-icons text-sm ml-2 ${isActive ? 'text-primary' : 'text-neutral-300'}`}>
+                                description
+                              </span>
+                              <span>{page.page_name}</span>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
                 </div>
               );
             })}
