@@ -93,7 +93,6 @@ const Home: React.FC = () => {
                 
                 {folderPages.length > 0 && (
                   <div className="mt-4">
-                    <h4 className="text-sm font-bold text-neutral-400 mb-2">עמודים:</h4>
                     <ul className="space-y-1">
                       {folderPages.slice(0, 3).map(page => (
                         <li key={page.id}>
