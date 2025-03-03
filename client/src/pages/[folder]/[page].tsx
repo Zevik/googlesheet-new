@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useRoute } from 'wouter';
+import { useRoute, Link } from 'wouter';
 import { Skeleton } from '@/components/ui/skeleton';
 import ContentBlock from '@/components/ContentBlock';
 import useGoogleSheets from '@/hooks/useGoogleSheets';
@@ -94,13 +94,13 @@ const FolderPage: React.FC = () => {
           <div className="text-sm text-neutral-500">
             <p>לא ניתן למצוא את העמוד המבוקש. ייתכן שהעמוד הוסר או שהקישור שגוי.</p>
             <div className="flex mt-4">
-              <a 
+              <Link 
                 href="/" 
                 className="text-primary hover:underline flex items-center"
               >
                 <span className="material-icons text-sm mr-1">home</span>
                 חזור לעמוד הראשי
-              </a>
+              </Link>
             </div>
           </div>
         </CardContent>

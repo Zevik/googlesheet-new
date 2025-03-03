@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'wouter';
 import { Card, CardContent } from '@/components/ui/card';
 import useGoogleSheets from '@/hooks/useGoogleSheets';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -88,13 +89,13 @@ const Home: React.FC = () => {
                     <ul className="space-y-1">
                       {folderPages.slice(0, 3).map(page => (
                         <li key={page.id}>
-                          <a 
+                          <Link 
                             href={`/${folder.slug}/${page.slug}`}
                             className="text-primary hover:underline flex items-center"
                           >
                             <span className="material-icons text-sm mr-1">description</span>
                             {page.page_name}
-                          </a>
+                          </Link>
                         </li>
                       ))}
                       {folderPages.length > 3 && (

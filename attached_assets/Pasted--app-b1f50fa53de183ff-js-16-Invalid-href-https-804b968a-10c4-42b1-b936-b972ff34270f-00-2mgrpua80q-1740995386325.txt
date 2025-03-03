@@ -1,0 +1,16 @@
+_app-b1f50fa53de183ff.js:16 Invalid href 'https://804b968a-10c4-42b1-b936-b972ff34270f-00-2mgrpua80qfyb.kirk.replit.dev//' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+
+workspace_iframe.html:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+40x40:1 
+ Failed to load resource: net::ERR_NAME_NOT_RESOLVED
+_app-b1f50fa53de183ff.js:16 Invalid href 'https://804b968a-10c4-42b1-b936-b972ff34270f-00-2mgrpua80qfyb.kirk.replit.dev//ai-tools/chatgpt' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+_app-b1f50fa53de183ff.js:16 Invalid href 'https://804b968a-10c4-42b1-b936-b972ff34270f-00-2mgrpua80qfyb.kirk.replit.dev//ai-tools/image-generation' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+_app-b1f50fa53de183ff.js:16 Invalid href 'https://804b968a-10c4-42b1-b936-b972ff34270f-00-2mgrpua80qfyb.kirk.replit.dev//ai-tools/developer-tools' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+_app-b1f50fa53de183ff.js:16 Invalid href 'https://804b968a-10c4-42b1-b936-b972ff34270f-00-2mgrpua80qfyb.kirk.replit.dev//ai-tools/business-ai' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+_app-b1f50fa53de183ff.js:16 Invalid href 'https://804b968a-10c4-42b1-b936-b972ff34270f-00-2mgrpua80qfyb.kirk.replit.dev//ai-tools/chatgpt' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+_app-b1f50fa53de183ff.js:16 Invalid href 'https://804b968a-10c4-42b1-b936-b972ff34270f-00-2mgrpua80qfyb.kirk.replit.dev//ai-ethics/ethical-challenges' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+_app-b1f50fa53de183ff.js:16 Invalid href 'https://804b968a-10c4-42b1-b936-b972ff34270f-00-2mgrpua80qfyb.kirk.replit.dev//what-is-ai/ai-definition' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+820
+Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.
+﻿
+
