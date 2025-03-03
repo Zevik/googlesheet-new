@@ -138,10 +138,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
             <span>דף הבית</span>
           </Link>
           
-          {/* תפריט תיקיות - מסנן כפילויות של "דף הבית" */}
+          {/* תפריט תיקיות - מסנן כפילויות */}
           {filteredMenuItems
-            // סינון של תיקיות "דף הבית" שכבר קיימות בתור קישור נפרד
-            .filter(folder => folder.folder_name !== 'דף הבית') 
+            // סינון של תיקיות כפולות - "דף הבית" וגם "צור קשר"
+            .filter(folder => folder.folder_name !== 'דף הבית' && folder.folder_name !== 'צור קשר' && folder.folder_name !== 'Contact') 
             .map((folder) => {
               const folderPages = getFolderPages(folder.id);
               const isActive = isFolderActive(folder);
@@ -189,17 +189,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
             })}
         </nav>
         
-        <div className="mt-8">
-          <h2 className="text-sm uppercase font-bold text-neutral-400 mb-2">הגדרות</h2>
-          <a href="#" className="flex items-center p-2 rounded-md hover:bg-neutral-50 text-neutral-500 mb-1">
-            <span className="material-icons text-neutral-300 ml-2">settings</span>
-            <span>הגדרות כלליות</span>
-          </a>
-          <a href="#" className="flex items-center p-2 rounded-md hover:bg-neutral-50 text-neutral-500">
-            <span className="material-icons text-neutral-300 ml-2">design_services</span>
-            <span>תבניות עמודים</span>
-          </a>
-        </div>
+        {/* חלק ההגדרות הוסר - אין צורך בו כרגע */}
       </div>
     </aside>
   );
