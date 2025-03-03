@@ -9,10 +9,13 @@
 # Force Node.js 18.x for compatibility
 [build.environment]
   NODE_VERSION = "18"
-  # Make sure Next.js plugin doesn't interfere with our Vite build
-  NETLIFY_NEXT_PLUGIN_SKIP = "true"
   # Forcibly disable Next.js plugin completely
   NETLIFY_USE_NEXTJS = "false"
+
+# Prevent Next.js plugin from running
+[plugins]
+  # Explicitly disable all plugins (especially Next.js)
+  package = []
 
 [[redirects]]
   from = "/api/*" 
