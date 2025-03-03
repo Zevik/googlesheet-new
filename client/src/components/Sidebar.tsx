@@ -199,7 +199,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
                       </div>
                       
                       <div className={`mr-5 pr-2 border-r-2 border-primary space-y-1 ${!isExpanded ? 'hidden' : ''}`}>
-                        {folderPages.map((page) => {
+                        {folderPages.map((page: Page) => {
                           const isActive = isPageActive(folder, page);
                           
                           return (
