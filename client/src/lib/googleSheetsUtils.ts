@@ -142,10 +142,93 @@ export const refreshData = async () => {
   ]);
 };
 
+// Helper function to create placeholder content for pages without content
+const createPlaceholderContent = (pageId: string, pageName: string): ContentBlock[] => {
+  // Only create placeholder for certain page IDs that we know are missing content
+  if (pageId === '10') { // כלי יצירת תמונות
+    return [
+      {
+        id: `placeholder-${pageId}-1`,
+        page_id: pageId,
+        content_type: 'title',
+        display_order: 1,
+        content: `כלי יצירת תמונות באמצעות בינה מלאכותית`,
+        description: 'כותרת ראשית',
+        title: '',
+        active: 'yes'
+      },
+      {
+        id: `placeholder-${pageId}-2`,
+        page_id: pageId,
+        content_type: 'text',
+        display_order: 2,
+        content: 'טכנולוגיות יצירת תמונות באמצעות בינה מלאכותית מאפשרות יצירת תוכן ויזואלי מרהיב על בסיס תיאור טקסטואלי. בדף זה נסקור את הכלים המובילים וכיצד ניתן להשתמש בהם ליצירת תמונות איכותיות.',
+        description: '',
+        title: '',
+        active: 'yes'
+      },
+      {
+        id: `placeholder-${pageId}-3`,
+        page_id: pageId,
+        content_type: 'list',
+        display_order: 3,
+        content: `הכלים הפופולריים ביותר ליצירת תמונות: DALL-E 3, המפותח על ידי OpenAI, המאפשר יצירת תמונות מפורטות ומדויקות מאוד; Midjourney, מחולל תמונות בעל יכולות אמנותיות מרשימות במיוחד; Stable Diffusion, פתרון קוד פתוח שניתן להתקנה ושימוש מקומי; Adobe Firefly, המתמקד ביצירת תמונות בטוחות לשימוש מסחרי; ו-Canva AI Image Generator, המשולב בפלטפורמת העיצוב הפופולרית.`,
+        description: '',
+        title: 'כלים מובילים בשוק',
+        active: 'yes'
+      },
+      {
+        id: `placeholder-${pageId}-4`,
+        page_id: pageId,
+        content_type: 'image',
+        display_order: 4,
+        content: 'https://example.com/ai-image-generation.jpg',
+        description: 'דוגמה לתמונה שנוצרה באמצעות בינה מלאכותית',
+        title: '',
+        active: 'yes'
+      }
+    ];
+  } else if (pageId === '11') { // כלים למפתחים
+    return [
+      {
+        id: `placeholder-${pageId}-1`,
+        page_id: pageId,
+        content_type: 'title',
+        display_order: 1,
+        content: 'כלי בינה מלאכותית למפתחים',
+        description: 'כותרת ראשית',
+        title: '',
+        active: 'yes'
+      },
+      {
+        id: `placeholder-${pageId}-2`,
+        page_id: pageId,
+        content_type: 'text',
+        display_order: 2,
+        content: 'מגוון רחב של כלי AI זמינים למפתחים, מ-APIs של מודלי שפה גדולים ועד ספריות קוד פתוח לעיבוד תמונה, קול וטקסט. בדף זה נסקור את הכלים המובילים עבור מפתחים.',
+        description: '',
+        title: '',
+        active: 'yes'
+      }
+    ];
+  }
+  
+  // Return empty array for other missing pages
+  return [];
+};
+
 // Get content for a specific page
 export const getPageContent = async (pageId: string): Promise<ContentBlock[]> => {
   const allContent = await fetchContent();
-  return allContent
+  const filteredContent = allContent
     .filter(block => block.page_id === pageId && block.active === 'yes')
     .sort((a, b) => a.display_order - b.display_order);
+  
+  // If no content found, return placeholder content
+  if (filteredContent.length === 0) {
+    console.log(`No content found for page ID ${pageId}, creating placeholder content`);
+    return createPlaceholderContent(pageId, '');
+  }
+  
+  return filteredContent;
 };

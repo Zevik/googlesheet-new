@@ -134,38 +134,7 @@ const FolderPage: React.FC = () => {
           <ContentBlock key={block.id} block={block} />
         ))}
 
-        {content.length === 0 && (
-          <Card className="bg-white rounded-lg shadow-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center mb-4">
-                <span className="material-icons text-amber-400 mr-2">construction</span>
-                <h2 className="text-xl font-medium text-neutral-800">עמוד בבנייה</h2>
-              </div>
-              <p className="text-sm text-neutral-500 mb-4">
-                עמוד זה נמצא בתהליך בנייה. תוכן ייווסף בקרוב לגיליון ה-Google Sheets.
-              </p>
-              
-              {page.id === "10" && (
-                <div className="space-y-4 mt-4 border-t pt-4">
-                  <h3 className="text-lg font-medium text-neutral-700">תצוגה מקדימה - כלי יצירת תמונות</h3>
-                  <p className="text-sm text-neutral-600">
-                    עמוד זה יכיל סקירה מקיפה של כלים ליצירת תמונות באמצעות בינה מלאכותית, כולל:
-                  </p>
-                  <ul className="list-disc list-inside text-sm text-neutral-600 space-y-2 mr-4">
-                    <li>DALL-E מבית OpenAI</li>
-                    <li>Midjourney</li>
-                    <li>Stable Diffusion</li>
-                    <li>Adobe Firefly</li>
-                    <li>Canva AI Image Generator</li>
-                  </ul>
-                  <p className="text-sm text-neutral-600 mt-2">
-                    כל כלי יוצג עם תיאור, יתרונות וחסרונות, ודוגמאות ליצירות.
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
+        {/* We no longer need this section since we're adding placeholder content in googleSheetsUtils.ts */}
       </div>
     </div>
   );
