@@ -17,29 +17,29 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
   // Fetch main menu items
   const { data: menuItems = [] } = useQuery({
     queryKey: ['main_menu'],
-    queryFn: fetchMainMenu
+    queryFn: () => fetchMainMenu()
   });
 
   // Fetch pages data
   const { data: pages = [] } = useQuery({
     queryKey: ['pages'],
-    queryFn: fetchPages
+    queryFn: () => fetchPages()
   });
 
   // Fetch settings
   const { data: settings = [] } = useQuery({
     queryKey: ['settings'],
-    queryFn: fetchSettings
+    queryFn: () => fetchSettings()
   });
 
   // Get site name from settings
-  const siteName = settings.find(s => s.key === 'siteName')?.value || 'אתר מבוסס גוגלשיטס';
-  const logoUrl = settings.find(s => s.key === 'logo')?.value || 'https://via.placeholder.com/40x40';
+  const siteName = settings.find((s: { key: string, value: string }) => s.key === 'siteName')?.value || 'אתר מבוסס גוגלשיטס';
+  const logoUrl = settings.find((s: { key: string, value: string }) => s.key === 'logo')?.value || 'https://via.placeholder.com/40x40';
 
   // Filter active menu items and sort by display order
   const activeMenuItems = menuItems
-    .filter(item => item.active === 'yes')
-    .sort((a, b) => a.display_order - b.display_order);
+    .filter((item: MainMenuItem) => item.active === 'yes')
+    .sort((a: MainMenuItem, b: MainMenuItem) => a.display_order - b.display_order);
 
   // Toggle folder expansion
   const toggleFolder = (folderId: string) => {

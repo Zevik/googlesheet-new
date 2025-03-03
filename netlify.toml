@@ -1,0 +1,22 @@
+[build]
+  command = "npm run build && cp -r server/functions dist/"
+  publish = "dist/client"
+
+[functions]
+  directory = "dist/functions"
+
+# Force Node.js 18.x for compatibility
+[build.environment]
+  NODE_VERSION = "18"
+  # Prevents Netlify from recognizing this as a Next.js site
+  NETLIFY_NEXT_PLUGIN_SKIP = "true"
+
+[[redirects]]
+  from = "/api/*" 
+  to = "/.netlify/functions/server/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
