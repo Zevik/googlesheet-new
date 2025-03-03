@@ -24,54 +24,53 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
     return { level: 2, content: titleText }; // ברירת מחדל אם אין פורמט מיוחד
   };
 
-  // פונקציה להמרת כותרת ורמה מפורמט משולב כמו "h2: כותרת" או מפורמט מופרד (content = "כותרת", title = "h2")
+  // פונקציה לקבלת רמת הכותרת והתוכן בפורמט החדש
   const extractTitleContent = (block: ContentBlockType) => {
-    // נסה את שדה title קודם, זה המקום הסטנדרטי לכותרות
+    // קבל את רמת הכותרת מהשדה החדש heading_level (עמודה H)
+    let headingLevel = 2; // ברירת מחדל היא h2
+    
+    if (block.heading_level) {
+      // אם הערך הוא "h1", "h2", וכו'
+      const levelMatch = block.heading_level.match(/^h([1-6])$/i);
+      if (levelMatch) {
+        headingLevel = parseInt(levelMatch[1]);
+      } 
+      // אם הערך הוא מספר בלבד - "1", "2", וכו'
+      else if (/^[1-6]$/.test(block.heading_level)) {
+        headingLevel = parseInt(block.heading_level);
+      }
+    }
+    
+    // בדיקת פורמט ישן שעדיין יכול להופיע בשדה title או content
+    let titleContent = '';
+    
+    // 1. נסה לחלץ מ-title, הפורמט הישן "h2: כותרת"
     if (block.title) {
-      // אם יש פורמט של "h2: כותרת" בשדה title
       const headingMatch = block.title.match(/^h([1-6]):\s*(.+)$/);
       if (headingMatch) {
-        return {
-          level: parseInt(headingMatch[1]),
-          content: headingMatch[2].trim()
-        };
+        // אם מצאנו פורמט ישן, עדכן גם את רמת הכותרת וגם את התוכן
+        headingLevel = parseInt(headingMatch[1]);
+        titleContent = headingMatch[2].trim();
+      } else {
+        // אחרת, השתמש בשדה title כפי שהוא
+        titleContent = block.title.trim();
       }
-      
-      // אם אין פורמט מיוחד בשדה title, בדוק אם יש בשדה content
-      if (block.content) {
-        const contentHeadingMatch = block.content.match(/^h([1-6]):\s*(.+)$/);
-        if (contentHeadingMatch) {
-          return {
-            level: parseInt(contentHeadingMatch[1]),
-            content: contentHeadingMatch[2].trim()
-          };
-        }
-        
-        // אם אין בשני השדות, השתמש ב-title כתוכן ובברירת מחדל h2
-        return { level: 2, content: block.title.trim() };
-      }
-      
-      // אין פורמט מיוחד ואין שדה content, השתמש בשדה title כתוכן
-      return { level: 2, content: block.title.trim() };
     }
-    
-    // אם אין שדה title אבל יש content
-    if (block.content) {
-      // בדוק אם יש פורמט מיוחד בשדה content
+    // 2. אם אין title אבל יש content, נסה לחלץ מ-content
+    else if (block.content) {
       const contentHeadingMatch = block.content.match(/^h([1-6]):\s*(.+)$/);
       if (contentHeadingMatch) {
-        return {
-          level: parseInt(contentHeadingMatch[1]),
-          content: contentHeadingMatch[2].trim()
-        };
+        headingLevel = parseInt(contentHeadingMatch[1]);
+        titleContent = contentHeadingMatch[2].trim();
+      } else {
+        titleContent = block.content.trim();
       }
-      
-      // אין פורמט מיוחד, השתמש בשדה content כתוכן
-      return { level: 2, content: block.content.trim() };
     }
     
-    // אין שדה title ואין שדה content, השתמש בכותרת ריקה
-    return { level: 2, content: '' };
+    return {
+      level: headingLevel,
+      content: titleContent
+    };
   };
 
   switch (contentType) {

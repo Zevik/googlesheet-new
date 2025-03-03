@@ -29,7 +29,8 @@ export interface ContentBlock {
   content: string;
   description: string;
   title: string;
-  active: string; // 'yes' or 'no'
+  heading_level?: string; // חדש! h1, h2, h3, etc. - עמודה H בגיליון
+  active: string; // 'yes' or 'no' - עמודה I בגיליון
 }
 
 // Type for settings sheet
