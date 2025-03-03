@@ -194,19 +194,26 @@ const FolderPage: React.FC = () => {
     );
   }
 
+  // בדיקה האם הבלוק הראשון הוא כותרת h1
+  const hasH1TitleAsFirstBlock = content.length > 0 && 
+    content[0].content_type.toLowerCase() === 'title' && 
+    content[0].title && 
+    content[0].title.toLowerCase().startsWith('h1:');
+
+  // אם יש כותרת h1 כבלוק הראשון, לא נציג את כותרת הדף (למניעת כפילות)
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-neutral-800 mb-2">{page.page_name}</h1>
-        <p className="text-neutral-500">{page.meta_description}</p>
-      </div>
+      {!hasH1TitleAsFirstBlock && (
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-neutral-800 mb-2">{page.page_name}</h1>
+          <p className="text-neutral-500">{page.meta_description}</p>
+        </div>
+      )}
 
       <div className="space-y-8">
         {content.map(block => (
           <ContentBlock key={block.id} block={block} />
         ))}
-
-        {/* We no longer need this section since we're adding placeholder content in googleSheetsUtils.ts */}
       </div>
     </div>
   );

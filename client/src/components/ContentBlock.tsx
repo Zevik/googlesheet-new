@@ -12,13 +12,54 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
   const contentType = (block.content_type || '').toLowerCase();
   console.log('Content type:', block.content_type, 'Lowercase:', contentType);
   
+  // פונקציה להמרת מחרוזת כותרת לרמה ותוכן
+  const parseTitleContent = (titleText: string) => {
+    const headingMatch = titleText.match(/^h([1-6]):\s*(.+)$/);
+    if (headingMatch) {
+      return {
+        level: parseInt(headingMatch[1]),
+        content: headingMatch[2].trim()
+      };
+    }
+    return { level: 2, content: titleText }; // ברירת מחדל אם אין פורמט מיוחד
+  };
+
   switch (contentType) {
     case 'title':
     case 'כותרת':
+      const titleInfo = parseTitleContent(block.title || block.content || '');
+      
+      // בחירת גודל הגופן והשוליים על פי רמת הכותרת
+      let titleClassName = "font-bold text-neutral-800 ";
+      let marginClassName = "mb-4 ";
+      
+      switch (titleInfo.level) {
+        case 1:
+          titleClassName += "text-3xl";
+          marginClassName += "mt-0";
+          break;
+        case 2:
+          titleClassName += "text-2xl";
+          marginClassName += "mt-6";
+          break;
+        case 3:
+          titleClassName += "text-xl";
+          marginClassName += "mt-5";
+          break;
+        default:
+          titleClassName += "text-lg";
+          marginClassName += "mt-4";
+      }
+      
+      // יצירת אלמנט הכותרת המתאים לרמה
+      const HeadingTag = `h${titleInfo.level}` as keyof JSX.IntrinsicElements;
+      
       return (
         <Card className="bg-white rounded-lg shadow-sm">
           <CardContent className="p-6">
-            <h2 className="text-2xl font-bold text-neutral-800">{block.content}</h2>
+            <HeadingTag className={`${titleClassName} ${marginClassName}`}>
+              {titleInfo.content}
+            </HeadingTag>
           </CardContent>
         </Card>
       );
