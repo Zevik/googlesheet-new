@@ -22,66 +22,86 @@ app.use(express.json());
 // A map to store routes
 const routes = new Map();
 
+// Default Google Sheet ID
+const DEFAULT_SHEET_ID = '1IvAFeW8EUKR_kdzX9mpU9PW9BrTDAjS7pC35Gzn2_dI';
+
+// Function to extract sheet ID from URL
+function extractSheetId(url) {
+  const regex = /https:\/\/docs\.google\.com\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/;
+  const match = url.match(regex);
+  return match ? match[1] : null;
+}
+
 // Helper to define routes
 function defineRoutes() {
-  // Define API routes for both direct access and via Netlify Functions
+  // Handler function for Google Sheets API requests
   const apiHandler = async (req, res) => {
     try {
       const sheetName = req.params.sheetName;
       console.log('API request for sheet:', sheetName);
       
-      // Return some mock data for testing
-      const mockData = {
-        main_menu: [
-          { id: '1', folder_name: 'Home', display_order: 1, active: 'yes', slug: 'home' },
-          { id: '2', folder_name: 'בלוג', display_order: 2, active: 'yes', slug: 'blog' },
-          { id: '3', folder_name: 'יסודות הבינה המלאכותית', display_order: 3, active: 'yes', slug: 'ai-basics' },
-          { id: '4', folder_name: 'כלים ויישומים', display_order: 4, active: 'yes', slug: 'tools' }
-        ],
-        pages: [
-          { id: '1', folder_id: '1', page_name: 'דף הבית', display_order: 1, active: 'yes', slug: 'home', meta_description: 'דף הבית של האתר', seo_title: 'דף הבית' },
-          { id: '2', folder_id: '2', page_name: 'בלוג', display_order: 1, active: 'yes', slug: 'blog', meta_description: 'המאמרים שלנו', seo_title: 'בלוג' },
-          { id: '3', folder_id: '3', page_name: 'מה זה בינה מלאכותית?', display_order: 1, active: 'yes', slug: 'what-is-ai', meta_description: 'מבוא לבינה מלאכותית', seo_title: 'מה זה בינה מלאכותית?' },
-          { id: '4', folder_id: '4', page_name: 'כלים מובילים', display_order: 1, active: 'yes', slug: 'leading-tools', meta_description: 'הכלים המובילים בתחום', seo_title: 'כלים מובילים' }
-        ],
-        content: [
-          { id: '1', page_id: '1', content_type: 'title', display_order: 1, content: 'ברוך הבא לעולם הבינה המלאכותית', active: 'yes' },
-          { id: '2', page_id: '1', content_type: 'text', display_order: 2, content: 'אתר זה נועד לספק מידע וכלים בנושא בינה מלאכותית', active: 'yes' },
-          { id: '3', page_id: '1', content_type: 'image', display_order: 3, content: 'https://i.postimg.cc/8N2WrbLN/LOGOGO.jpg', active: 'yes' }
-        ],
-        settings: [
-          { key: 'siteName', value: 'עולם הבינה המלאכותית' },
-          { key: 'logo', value: 'https://i.postimg.cc/8N2WrbLN/LOGOGO.jpg' },
-          { key: 'footerText', value: 'כל הזכויות שמורות לאתר הבינה המלאכותית © 2025' },
-          { key: 'primaryColor', value: '#1A73E8' },
-          { key: 'secondaryColor', value: '#FF9800' },
-          { key: 'language', value: 'he' },
-          { key: 'rtl', value: 'TRUE' },
-          { key: 'contactEmail', value: 'info@aiworld.co.il' },
-          { key: 'phoneNumber', value: '03-1234567' },
-          { key: 'address', value: 'רח\' הטכנולוגיה 10 תל אביב' }
-        ],
-        templates: []
-      };
+      // Check if custom sheet URL was provided in the request
+      let sheetId = DEFAULT_SHEET_ID;
+      const customSheetUrl = req.headers['x-sheet-url'];
       
-      if (mockData[sheetName]) {
-        const data = mockData[sheetName];
-        console.log(`Returning ${data.length} items for ${sheetName}`);
-        return res.json(data);
-      } else {
-        console.log(`Sheet "${sheetName}" not found`);
-        return res.status(404).json({ error: 'Sheet not found' });
+      if (customSheetUrl) {
+        const extractedId = extractSheetId(customSheetUrl);
+        if (extractedId) {
+          sheetId = extractedId;
+          console.log('Using custom sheet ID:', sheetId);
+        }
       }
+      
+      const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+      
+      console.log(`Fetching from sheet ID: ${sheetId}, sheet name: ${sheetName}`);
+      
+      // Using node-fetch (imported at the top of the file)
+      const fetch = require('node-fetch');
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        console.error(`Google Sheets API error: ${response.status} ${response.statusText}`);
+        return res.status(response.status).json({ 
+          error: `Failed to fetch data from Google Sheets: ${response.statusText}` 
+        });
+      }
+      
+      const text = await response.text();
+      
+      // Extract the JSON part from the response
+      // The response is in the format: /*O_o*/ google.visualization.Query.setResponse({...});
+      const jsonText = text.replace(/^\/\*O_o\*\/\s*google\.visualization\.Query\.setResponse\(/, '')
+                         .replace(/\);$/, '');
+      
+      if (!jsonText) {
+        console.error('Failed to extract JSON from Google Sheets response');
+        return res.status(500).json({ error: 'Failed to extract JSON data from Google Sheets response' });
+      }
+      
+      // Check if jsonText is valid JSON
+      try {
+        JSON.parse(jsonText);
+      } catch (err) {
+        console.error('Invalid JSON from Google Sheets:', err);
+        console.log('Raw response:', text);
+        return res.status(500).json({ error: 'Invalid JSON response from Google Sheets' });
+      }
+      
+      // Set headers and send the response
+      res.set('Content-Type', 'application/json');
+      res.send(jsonText);
+      
     } catch (error) {
       console.error('API error:', error);
       return res.status(500).json({ error: 'Internal server error', details: error.message });
     }
   };
 
-  // רישום הנתיב לשני מיקומים אפשריים
+  // Register the path for both possible locations
   app.get('/api/sheets/:sheetName', apiHandler);
   
-  // נתיב נוסף למקרה שהנתיב לא מגיע כמצופה
+  // Additional path in case the path doesn't arrive as expected
   app.get('/.netlify/functions/server/api/sheets/:sheetName', apiHandler);
 }
 
