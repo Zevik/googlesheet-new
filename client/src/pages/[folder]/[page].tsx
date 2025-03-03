@@ -194,11 +194,54 @@ const FolderPage: React.FC = () => {
     );
   }
 
-  // בדיקה האם הבלוק הראשון הוא כותרת h1
-  const hasH1TitleAsFirstBlock = content.length > 0 && 
-    content[0].content_type.toLowerCase() === 'title' && 
-    content[0].title && 
-    content[0].title.toLowerCase().startsWith('h1:');
+  // בדיקה מקיפה יותר לכפילות כותרות
+  const shouldHideTitleHeader = () => {
+    // אם אין תוכן, אין סיבה להסתיר את כותרת העמוד
+    if (content.length === 0) return false;
+    
+    // בדוק אם הבלוק הראשון הוא כותרת
+    const firstBlock = content[0];
+    const isFirstBlockTitle = firstBlock.content_type.toLowerCase() === 'title';
+    
+    if (!isFirstBlockTitle) return false;
+    
+    // בדוק אם יש כפילות בתוכן הכותרת
+    const pageTitleLower = page.page_name.toLowerCase().trim();
+    
+    // קבל את תוכן הכותרת מהבלוק הראשון (בין אם בפורמט הישן עם h1: או בפורמט החדש)
+    let firstBlockTitle = '';
+    
+    // אם יש heading_level (פורמט חדש), הכותרת נמצאת בשדה title ללא ציון רמה
+    if (firstBlock.heading_level) {
+      firstBlockTitle = (firstBlock.title || firstBlock.content || '').toLowerCase().trim();
+    } 
+    // אם אין heading_level (פורמט ישן), ייתכן שהכותרת עם ציון רמה כמו "h1: כותרת"
+    else if (firstBlock.title) {
+      const headingMatch = firstBlock.title.match(/^h[1-6]:\s*(.+)$/i);
+      if (headingMatch) {
+        firstBlockTitle = headingMatch[1].toLowerCase().trim();
+      } else {
+        firstBlockTitle = firstBlock.title.toLowerCase().trim();
+      }
+    }
+    // אם אין title אבל יש content, בדוק גם אותו
+    else if (firstBlock.content) {
+      const headingMatch = firstBlock.content.match(/^h[1-6]:\s*(.+)$/i);
+      if (headingMatch) {
+        firstBlockTitle = headingMatch[1].toLowerCase().trim();
+      } else {
+        firstBlockTitle = firstBlock.content.toLowerCase().trim();
+      }
+    }
+    
+    // בדוק אם יש התאמה בין כותרת העמוד לכותרת הבלוק הראשון
+    return firstBlockTitle === pageTitleLower || 
+           // גם אם הכותרות לא זהות לגמרי, אבל הבלוק הראשון הוא כותרת ברמה 1, עדיף להראות אותו
+           ((firstBlock.heading_level === 'h1' || firstBlock.heading_level === '1') && isFirstBlockTitle);
+  };
+  
+  // בדיקה אם צריך להציג את כותרת העמוד או לא
+  const hasH1TitleAsFirstBlock = shouldHideTitleHeader();
 
   // אם יש כותרת h1 כבלוק הראשון, לא נציג את כותרת הדף (למניעת כפילות)
   return (
