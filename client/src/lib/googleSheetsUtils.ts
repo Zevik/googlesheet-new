@@ -8,25 +8,19 @@ import {
 } from './types';
 import { queryClient } from './queryClient';
 
-// Google Sheet ID from the requirements
-const SHEET_ID = '1IvAFeW8EUKR_kdzX9mpU9PW9BrTDAjS7pC35Gzn2_dI';
-
-// Generic function to fetch data from Google Sheets
+// Generic function to fetch data from Google Sheets via our proxy server
 export const fetchFromGoogleSheets = async (sheetName: string): Promise<any[]> => {
   try {
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+    // Use our server-side proxy to avoid CORS issues
+    const url = `/api/sheets/${encodeURIComponent(sheetName)}`;
     
     const response = await fetch(url);
-    const text = await response.text();
     
-    // Extract the JSON part from the response
-    const jsonText = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);/)?.[1];
-    
-    if (!jsonText) {
-      throw new Error('Failed to extract JSON data from Google Sheets response');
+    if (!response.ok) {
+      throw new Error(`Failed to fetch data: ${response.statusText}`);
     }
     
-    const json: GoogleSheetsResponse = JSON.parse(jsonText);
+    const json: GoogleSheetsResponse = await response.json();
     
     // Get column headers from the first row
     const headers = json.table.cols.map(col => col.label);
