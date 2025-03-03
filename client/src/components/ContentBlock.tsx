@@ -38,6 +38,8 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
 
     case 'image':
     case 'תמונה':
+      // Use the helper function to handle Unsplash URLs
+      const imageUrl = getUnsplashImageUrl(block.content);
       return (
         <Card className="bg-white rounded-lg shadow-sm">
           <CardContent className="p-6">
@@ -47,7 +49,7 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
               )}
               <div className="aspect-w-16 aspect-h-9 overflow-hidden rounded-lg">
                 <img 
-                  src={block.content} 
+                  src={imageUrl} 
                   alt={block.description || ''} 
                   className="object-cover w-full h-full" 
                 />
@@ -239,6 +241,18 @@ function getFileName(url: string) {
   } catch (error) {
     return url;
   }
+}
+
+// Helper function to convert Unsplash URL to direct image URL
+function getUnsplashImageUrl(url: string) {
+  // Check if it's an Unsplash URL but not already a direct image URL
+  if (url.includes('unsplash.com/photos/') && !url.includes('images.unsplash.com')) {
+    // Extract the photo ID
+    const photoId = url.split('/photos/')[1].split(/[?#]/)[0];
+    // Return the direct image URL with optimized parameters
+    return `https://images.unsplash.com/photo-${photoId}?auto=format&fit=crop&w=1200&q=80`;
+  }
+  return url; // Return original URL if not an Unsplash URL or already a direct URL
 }
 
 export default ContentBlock;
