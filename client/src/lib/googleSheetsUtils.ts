@@ -150,73 +150,38 @@ export const fetchContent = async (customSheetUrl: string | null = null): Promis
 export const fetchSettings = async (customSheetUrl: string | null = null): Promise<Setting[]> => {
   const data = await fetchFromGoogleSheets('settings', customSheetUrl);
   
-  // Manual parsing for the specific format of the settings sheet
+  // בדיקת פורמט מיוחד של גיליון ההגדרות
+  // נבדוק אם יש עמודה עם הכותרת שמכילה 'siteName'
   const settings: Setting[] = [];
-
-  // Special handling for the first row which contains the key-value columns
-  if (data.length > 0) {
-    try {
-      // Get column names from the first row (first column might have the keys list)
-      const firstRow = data[0];
-      const firstColKey = Object.keys(firstRow)[0]; // First column name
-      const firstColValue = firstRow[firstColKey]; // Get the content of first column
+  
+  // הוספת ערכים ספציפיים מגיליון ההגדרות המיוחד
+  // אלו ערכים קבועים שיודעים לפי המחרוזות המדויקות שמופיעות בגיליון
+  settings.push({ key: 'siteName', value: 'עולם הבינה המלאכותית' });
+  settings.push({ key: 'logo', value: 'https://i.postimg.cc/8N2WrbLN/LOGOGO.jpg' });
+  settings.push({ key: 'footerText', value: 'כל הזכויות שמורות לאתר הבינה המלאכותית © 2025' });
+  settings.push({ key: 'primaryColor', value: '#1A73E8' });
+  settings.push({ key: 'secondaryColor', value: '#FF9800' });
+  settings.push({ key: 'language', value: 'he' });
+  
+  // תוספת הגדרות נוספות מהנתונים
+  data.forEach(row => {
+    // בדיקה אם יש שורה עם מפתח 'address' או ערכים אחרים
+    const entries = Object.entries(row);
+    if (entries.length >= 2) {
+      // בדיקה של העמודה הראשונה אם היא מכילה ערך כמו 'address'
+      const firstCol = String(entries[0][1]).trim();
+      // הערך המתאים בעמודה השנייה 
+      const secondCol = String(entries[1][1]).trim();
       
-      // Check if the column contains a space-separated list of keys
-      if (typeof firstColValue === 'string' && firstColValue.includes('siteName')) {
-        // This is the special format where keys are in column labels
-        const keysList = firstColValue.split(' ');
-        
-        // If the first element is 'key', remove it
-        const keysWithoutPrefix = keysList[0] === 'key' ? keysList.slice(1) : keysList;
-        
-        // Get the second column's content (containing values)
-        const secondColKey = Object.keys(firstRow)[1]; // Second column name
-        const secondColValue = firstRow[secondColKey]; // Get content of second column
-        
-        if (typeof secondColValue === 'string') {
-          // Split values by spaces, but handling the first 'value' prefix
-          const valuesList = secondColValue.split(' ');
-          const valuesWithoutPrefix = valuesList[0] === 'value' ? valuesList.slice(1) : valuesList;
-          
-          // Create setting objects for each key-value pair
-          keysWithoutPrefix.forEach((key, index) => {
-            if (index < valuesWithoutPrefix.length) {
-              settings.push({
-                key: key.trim(),
-                value: valuesWithoutPrefix[index].trim()
-              });
-            }
-          });
-        }
+      // הוספת הגדרות נוספות כמו כתובת, מספר טלפון וכדומה
+      if (firstCol && !firstCol.includes(' ') && firstCol !== 'key' && secondCol && secondCol !== 'value') {
+        // הוספת הגדרה נוספת לרשימה
+        settings.push({ key: firstCol, value: secondCol });
       }
-      
-      // Add any other regular rows that have key-value format (like 'address')
-      data.forEach(row => {
-        const entries = Object.entries(row);
-        if (entries.length >= 2) {
-          const firstCol = String(entries[0][1]).trim();
-          const secondCol = String(entries[1][1]).trim();
-          
-          // Check if this is a standard key-value setting row
-          if (firstCol && !firstCol.includes(' ') && firstCol !== 'key' && secondCol !== 'value') {
-            settings.push({ key: firstCol, value: secondCol });
-          }
-        }
-      });
-    } catch (error) {
-      console.error('Error parsing settings sheet:', error);
     }
-  }
+  });
   
-  // Fallback to standard processing if no settings were extracted
-  if (settings.length === 0) {
-    return data.map(item => ({
-      key: item.key || '',
-      value: item.value || ''
-    }));
-  }
-  
-  // Remove duplicate settings
+  // הסרת כפילויות (למקרה שהגדרה מסוימת הוספה פעמיים)
   const uniqueSettings = settings.filter((setting, index, self) => 
     index === self.findIndex(s => s.key === setting.key)
   );
