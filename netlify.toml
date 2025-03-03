@@ -1,6 +1,7 @@
 [build]
-  command = "npm run build && cp -r server/functions dist/"
+  command = "npm run build && cp -r server/functions dist/ && echo 'Build completed successfully'"
   publish = "dist/public"
+  ignore_warnings = true
 
 [functions]
   directory = "dist/functions"
@@ -10,6 +11,8 @@
   NODE_VERSION = "18"
   # Make sure Next.js plugin doesn't interfere with our Vite build
   NETLIFY_NEXT_PLUGIN_SKIP = "true"
+  # Forcibly disable Next.js plugin completely
+  NETLIFY_USE_NEXTJS = "false"
 
 [[redirects]]
   from = "/api/*" 
