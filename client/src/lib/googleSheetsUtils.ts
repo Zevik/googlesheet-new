@@ -52,6 +52,36 @@ export const fetchFromGoogleSheets = async (sheetName: string, customSheetUrl: s
   }
 };
 
+// Query functions with proper context handling for TanStack Query v5
+// These functions don't accept parameters and are safe for queryFn
+
+// Fetch main_menu sheet for QueryClient
+export const fetchMainMenuForQuery = () => {
+  return fetchMainMenu();
+};
+
+// Fetch pages sheet for QueryClient
+export const fetchPagesForQuery = () => {
+  return fetchPages();
+};
+
+// Fetch content sheet for QueryClient
+export const fetchContentForQuery = () => {
+  return fetchContent();
+};
+
+// Fetch settings sheet for QueryClient
+export const fetchSettingsForQuery = () => {
+  return fetchSettings();
+};
+
+// Fetch templates sheet for QueryClient
+export const fetchTemplatesForQuery = () => {
+  return fetchTemplates();
+};
+
+// Original fetch functions - these accept customSheetUrl parameter but are not used directly in useQuery
+
 // Fetch main_menu sheet
 export const fetchMainMenu = async (customSheetUrl: string | null = null): Promise<MainMenuItem[]> => {
   const data = await fetchFromGoogleSheets('main_menu', customSheetUrl);
@@ -101,9 +131,6 @@ export const fetchContent = async (customSheetUrl: string | null = null): Promis
       else if (contentTypeStr === 'קובץ' || contentTypeStr === 'file') normalizedContentType = 'file';
       else if (contentTypeStr === 'טבלה' || contentTypeStr === 'table') normalizedContentType = 'table';
     }
-    
-    // כבר אין צורך בלוג הזה
-    // console.log("Content type:", item.content_type, "Normalized:", normalizedContentType);
     
     return {
       id: String(item.id),

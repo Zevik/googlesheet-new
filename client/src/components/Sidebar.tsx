@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
-import { fetchMainMenu, fetchPages, fetchSettings } from '@/lib/googleSheetsUtils';
-import { MainMenuItem, Page } from '@/lib/types';
+import { fetchMainMenuForQuery, fetchPagesForQuery, fetchSettingsForQuery } from '@/lib/googleSheetsUtils';
+import { MainMenuItem, Page, Setting } from '@/lib/types';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -17,19 +17,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
   // Fetch main menu items
   const { data: menuItems = [] } = useQuery({
     queryKey: ['main_menu'],
-    queryFn: () => fetchMainMenu()
+    queryFn: fetchMainMenuForQuery
   });
 
   // Fetch pages data
   const { data: pages = [] } = useQuery({
     queryKey: ['pages'],
-    queryFn: () => fetchPages()
+    queryFn: fetchPagesForQuery
   });
 
   // Fetch settings
   const { data: settings = [] } = useQuery({
     queryKey: ['settings'],
-    queryFn: () => fetchSettings()
+    queryFn: fetchSettingsForQuery
   });
 
   // Get site name from settings
@@ -52,15 +52,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
   // Filter pages by folder id and active status
   const getFolderPages = (folderId: string) => {
     return pages
-      .filter(page => page.folder_id === folderId && page.active === 'yes')
-      .sort((a, b) => a.display_order - b.display_order);
+      .filter((page: Page) => page.folder_id === folderId && page.active === 'yes')
+      .sort((a: Page, b: Page) => a.display_order - b.display_order);
   };
 
   // Filter items based on search term
   const filteredMenuItems = searchTerm 
-    ? activeMenuItems.filter(item => 
+    ? activeMenuItems.filter((item: MainMenuItem) => 
         item.folder_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        getFolderPages(item.id).some(page => 
+        getFolderPages(item.id).some((page: Page) => 
           page.page_name.toLowerCase().includes(searchTerm.toLowerCase())
         )
       )
@@ -147,16 +147,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
           {/* תפריט תיקיות - מציג קטגוריות ללא כפילויות */}
           {filteredMenuItems
             // מזהה קטגוריות ייחודיות לפי שם התיקייה
-            .filter((folder, index, self) => 
+            .filter((folder: MainMenuItem, index: number, self: MainMenuItem[]) => 
               // מסנן קטגוריות כפולות על פי שם התיקייה
-              index === self.findIndex(f => f.folder_name === folder.folder_name) &&
+              index === self.findIndex((f: MainMenuItem) => f.folder_name === folder.folder_name) &&
               // מסנן גם תיקיות מיוחדות שמופיעות כפתורים נפרדים
               folder.folder_name !== 'דף הבית' && 
               folder.folder_name !== 'בית' &&
               folder.folder_name !== 'צור קשר' && 
               folder.folder_name !== 'Contact'
             ) 
-            .map((folder) => {
+            .map((folder: MainMenuItem) => {
               const folderPages = getFolderPages(folder.id);
               const isActive = isFolderActive(folder);
               const isExpanded = expandedFolders[folder.id];

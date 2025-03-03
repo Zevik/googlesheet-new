@@ -3,8 +3,9 @@ import Sidebar from './Sidebar';
 import Header from './Header';
 import Footer from './Footer';
 import { useQuery } from '@tanstack/react-query';
-import { fetchSettings } from '@/lib/googleSheetsUtils';
+import { fetchSettingsForQuery } from '@/lib/googleSheetsUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Setting } from '@/lib/types';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -19,9 +20,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     setIsSidebarOpen(!isMobile);
   }, [isMobile]);
   
-  const { data: settings } = useQuery({
+  const { data: settings = [] } = useQuery({
     queryKey: ['settings'],
-    queryFn: fetchSettings
+    queryFn: fetchSettingsForQuery
   });
 
   const toggleSidebar = () => {
@@ -39,7 +40,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           {children}
         </main>
         
-        <Footer footerText={settings?.find(s => s.key === 'footerText')?.value || '© כל הזכויות שמורות'} />
+        <Footer footerText={settings.find((s: { key: string, value: string }) => s.key === 'footerText')?.value || '© כל הזכויות שמורות'} />
       </div>
     </div>
   );
