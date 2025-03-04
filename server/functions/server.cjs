@@ -1,6 +1,8 @@
 const express = require('express');
 const path = require('path');
 const { log } = require('./vite.cjs'); // תיקון הנתיב לקובץ vite.cjs שנמצא באותה תיקייה
+// Use node-fetch version 2 which is CommonJS compatible
+const fetch = require('node-fetch');
 
 // Create Express app
 const app = express();
@@ -9,7 +11,7 @@ const app = express();
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, x-sheet-url');
   next();
 });
 
@@ -56,8 +58,7 @@ function defineRoutes() {
       
       console.log(`Fetching from sheet ID: ${sheetId}, sheet name: ${sheetName}`);
       
-      // Using node-fetch (imported at the top of the file)
-      const fetch = require('node-fetch');
+      // Using fetch that was imported at the top of the file
       const response = await fetch(url);
       
       if (!response.ok) {
