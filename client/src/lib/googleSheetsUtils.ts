@@ -18,13 +18,21 @@ export const setCurrentSheetUrl = (url: string | null): void => {
     // וידוא שהקישור תקין
     const sheetIdMatch = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
     if (sheetIdMatch) {
-      currentSheetUrl = url;
-      console.log('Google Sheets URL updated:', url);
+      // נקה את ה-URL ליצירת גרסה סטנדרטית
+      const sheetId = sheetIdMatch[1];
+      const cleanUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/edit`;
+      
+      // שמור גם בלוקל סטורג' וגם במשתנה הגלובלי
+      localStorage.setItem('sheetsURL', cleanUrl);
+      currentSheetUrl = cleanUrl;
+      
+      console.log('Google Sheets URL updated:', cleanUrl);
     } else {
       console.error('Invalid Google Sheets URL format:', url);
     }
   } else {
     // אם מתקבל null, איפוס הקישור הנוכחי
+    localStorage.removeItem('sheetsURL');
     currentSheetUrl = null;
   }
 };
