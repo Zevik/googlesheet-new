@@ -141,18 +141,6 @@ const Header: React.FC<HeaderProps> = ({ isMobileMenuOpen, toggleMobileMenu }) =
     return (
       <nav className="hidden md:flex items-center justify-center mt-2 pb-2">
         <div className="flex space-x-1 space-x-reverse">
-          {/* קישור לדף הבית */}
-          <div className="relative px-1">
-            <Link 
-              href="/"
-              className={`px-3 py-2 rounded-md text-white hover:bg-blue-600 transition-colors flex items-center ${
-                location === '/' ? 'bg-blue-600 font-medium' : ''
-              }`}
-            >
-              דף הבית
-            </Link>
-          </div>
-          
           {/* מיפוי קטגוריות התפריט - רק עבור דסקטופ */}
           {activeMenuItems.map((folder: MainMenuItem) => {
             const folderPages = pages
@@ -250,16 +238,6 @@ const Header: React.FC<HeaderProps> = ({ isMobileMenuOpen, toggleMobileMenu }) =
           
           {/* תפריט ניווט */}
           <nav className="p-4">
-            <Link 
-              href="/"
-              className={`block py-2 px-4 rounded-md mb-2 ${
-                location === '/' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
-              }`}
-              onClick={toggleMobileMenu}
-            >
-              דף הבית
-            </Link>
-            
             {/* קטגוריות מובייל */}
             {activeMenuItems.map((folder: MainMenuItem) => {
               const folderPages = pages
