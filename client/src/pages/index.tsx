@@ -57,7 +57,7 @@ const Home: React.FC = () => {
     <div className="space-y-8">
       {/* כותרת הראשית הוסרה כי היא מופיעה כבר בכותרת העליונה */}
 
-      <h2 className="text-2xl font-bold text-neutral-800 mt-8 mb-4">קטגוריות</h2>
+      {/* כותרת הקטגוריות מגיעה מהתוכן בגיליון */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {mainMenu.map(folder => {
           const folderPages = getFolderPages(folder.id);
