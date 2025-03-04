@@ -385,33 +385,15 @@ const Header: React.FC<HeaderProps> = ({ isMobileMenuOpen, toggleMobileMenu }) =
               </ol>
             </nav>
             
-            {/* אייקונים */}
-            <div className="flex space-x-1">
-              {/* אייקון 1: קישור לגיליון גוגל */}
-              <button
-                className="text-white hover:bg-blue-700 p-2 rounded-full transition-colors"
-                onClick={openGoogleSheets}
-                aria-label="פתח גיליון גוגל"
-              >
-                <span className="material-icons">table_chart</span>
-              </button>
-              
-              {/* אייקון 2: החלפת קישור לגיליון */}
+            {/* אייקון עריכה */}
+            <div className="flex">
+              {/* אייקון החלפת קישור לגיליון גוגל שיטס */}
               <button
                 className="text-white hover:bg-blue-700 p-2 rounded-full transition-colors"
                 onClick={openSheetDialog}
                 aria-label="שנה קישור לגיליון גוגל"
               >
                 <span className="material-icons">edit</span>
-              </button>
-              
-              {/* אייקון 3: רענון נתונים */}
-              <button
-                className="text-white hover:bg-blue-700 p-2 rounded-full transition-colors"
-                onClick={handleRefresh}
-                aria-label="רענן נתונים"
-              >
-                <span className="material-icons">sync</span>
               </button>
             </div>
           </div>
