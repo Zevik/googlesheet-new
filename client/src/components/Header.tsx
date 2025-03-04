@@ -149,7 +149,7 @@ const Header: React.FC<HeaderProps> = ({ isMobileMenuOpen, toggleMobileMenu }) =
                 location === '/' ? 'bg-blue-600 font-medium' : ''
               }`}
             >
-              בית
+              דף הבית
             </Link>
           </div>
           
@@ -257,7 +257,7 @@ const Header: React.FC<HeaderProps> = ({ isMobileMenuOpen, toggleMobileMenu }) =
               }`}
               onClick={toggleMobileMenu}
             >
-              בית
+              דף הבית
             </Link>
             
             {/* קטגוריות מובייל */}
@@ -357,7 +357,7 @@ const Header: React.FC<HeaderProps> = ({ isMobileMenuOpen, toggleMobileMenu }) =
             <nav className="text-sm breadcrumbs hidden md:flex mr-4">
               <ol className="flex items-center">
                 <li className="flex items-center">
-                  <a href="/" className="text-white hover:text-blue-100">בית</a>
+                  <a href="/" className="text-white hover:text-blue-100">ראשי</a>
                   {(currentFolder || currentPage) && (
                     <span className="material-icons text-blue-200 mx-1 text-sm">chevron_left</span>
                   )}
