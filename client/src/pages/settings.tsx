@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import useGoogleSheets from '@/hooks/useGoogleSheets';
+import { setCurrentSheetUrl } from '@/lib/googleSheetsUtils';
 
 const Settings: React.FC = () => {
   const { getSetting, isLoading, hasError, errors, refreshData } = useGoogleSheets();
@@ -36,7 +37,7 @@ const Settings: React.FC = () => {
     return match ? match[1] : null;
   };
 
-  // שמור URL מקומית
+  // שמור URL מקומית ובמערכת
   const saveSheetUrl = async () => {
     // וודא שזה URL תקין של גוגל שיטס
     const sheetId = extractSheetId(sheetUrl);
@@ -53,8 +54,11 @@ const Settings: React.FC = () => {
     try {
       setIsSaving(true);
       
-      // שמור את ה-URL בלוקל סטורג'
-      localStorage.setItem('sheetsURL', sheetUrl);
+      // יצירת קישור נקי מפרמטרים מיותרים
+      const cleanUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/edit`;
+      
+      // שמור את ה-URL בספריית googleSheetsUtils (שכבר שומרת גם ב-localStorage)
+      setCurrentSheetUrl(cleanUrl);
       
       toast({
         title: "נשמר בהצלחה",
@@ -63,12 +67,12 @@ const Settings: React.FC = () => {
 
       // רענן את הנתונים מהמקור החדש
       if (refreshData) {
-        await refreshData(sheetUrl);
+        await refreshData(cleanUrl);
       }
       
       // חזור לעמוד הראשי לאחר רענון
       setTimeout(() => {
-        setLocation('/');
+        window.location.href = '/'; // רענון מלא כדי לוודא שהשינויים חלים
       }, 1500);
     } catch (error) {
       console.error("Error saving sheet URL:", error);
