@@ -10,7 +10,22 @@ import {
 import { queryClient } from './queryClient';
 
 // שמירת הקישור הנוכחי לגיליון גוגל
-let currentSheetUrl: string | null = null;
+// טעינה התחלתית מהלוקל סטורג'
+let currentSheetUrl: string | null = (() => {
+  try {
+    // בדיקה אם אנחנו בסביבת דפדפן (יש לוקל סטורג')
+    if (typeof localStorage !== 'undefined') {
+      const savedUrl = localStorage.getItem('sheetsURL');
+      if (savedUrl) {
+        console.log('Loading saved Google Sheets URL from localStorage:', savedUrl);
+        return savedUrl;
+      }
+    }
+  } catch (e) {
+    console.error('Error accessing localStorage:', e);
+  }
+  return null;
+})();
 
 // פונקציה להגדרת הקישור הנוכחי לגיליון גוגל
 export const setCurrentSheetUrl = (url: string | null): void => {

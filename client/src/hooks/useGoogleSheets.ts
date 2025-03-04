@@ -5,7 +5,8 @@ import {
   fetchContent, 
   fetchSettings, 
   fetchTemplates,
-  refreshData 
+  refreshData,
+  setCurrentSheetUrl
 } from '@/lib/googleSheetsUtils';
 import { MainMenuItem, Page, ContentBlock, Setting, Template } from '@/lib/types';
 import { useEffect, useState } from 'react';
@@ -19,7 +20,9 @@ export const useGoogleSheets = () => {
   useEffect(() => {
     const storedUrl = localStorage.getItem('sheetsURL');
     if (storedUrl) {
-      setCustomSheetUrl(storedUrl);
+      // וידוא שהמשתנה הגלובלי והמשתנה המקומי מסונכרנים
+      setCurrentSheetUrl(storedUrl); // עדכון המשתנה הגלובלי
+      setCustomSheetUrl(storedUrl);  // עדכון המשתנה המקומי בהוק
     }
   }, []);
   
@@ -114,7 +117,9 @@ export const useGoogleSheets = () => {
   // Function to refresh all data with new sheet URL
   const refreshWithNewSheetUrl = async (newUrl: string | null = null) => {
     if (newUrl !== null) {
-      localStorage.setItem('sheetsURL', newUrl);
+      // שימוש בפונקציה המרכזית שתעדכן גם את ה-localStorage וגם את המשתנה הגלובלי
+      setCurrentSheetUrl(newUrl);
+      // עדכון המשתנה המקומי בתוך ה-hook
       setCustomSheetUrl(newUrl);
     }
     
