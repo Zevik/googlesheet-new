@@ -22,13 +22,20 @@ const Settings: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [, setLocation] = useLocation();
 
-  // הגדר את הערך ההתחלתי של ה-URL מהגדרות או מגיליון ברירת מחדל
+  // הגדר את הערך ההתחלתי של ה-URL מ-localStorage ישירות
   useEffect(() => {
-    if (!isLoading) {
-      const currentSheetUrl = getSetting('sheetsURL') || 'https://docs.google.com/spreadsheets/d/1IvAFeW8EUKR_kdzX9mpU9PW9BrTDAjS7pC35Gzn2_dI/edit';
-      setSheetUrl(currentSheetUrl);
+    // קריאה ישירות מ-localStorage ולא דרך ההגדרות (settings)
+    const savedUrl = localStorage.getItem('sheetsURL');
+    if (savedUrl) {
+      setSheetUrl(savedUrl);
+      console.log('Loaded sheet URL from localStorage:', savedUrl);
+    } else {
+      // אם אין URL שמור, שים URL ברירת מחדל
+      const defaultUrl = 'https://docs.google.com/spreadsheets/d/1IvAFeW8EUKR_kdzX9mpU9PW9BrTDAjS7pC35Gzn2_dI/edit';
+      setSheetUrl(defaultUrl);
+      console.log('No saved URL found, using default:', defaultUrl);
     }
-  }, [isLoading, getSetting]);
+  }, []);
 
   // חלץ את מזהה הגיליון מ-URL
   const extractSheetId = (url: string): string | null => {
@@ -70,10 +77,9 @@ const Settings: React.FC = () => {
         await refreshData(cleanUrl);
       }
       
-      // חזור לעמוד הראשי לאחר רענון
-      setTimeout(() => {
-        window.location.href = '/'; // רענון מלא כדי לוודא שהשינויים חלים
-      }, 1500);
+      // רענון מיידי והנחתה חזרה לדף הבית
+      // גלישה ישירה במקום setTimeout
+      window.location.href = '/?reload=' + new Date().getTime(); // רענון מלא כדי לוודא שהשינויים חלים
     } catch (error) {
       console.error("Error saving sheet URL:", error);
       toast({

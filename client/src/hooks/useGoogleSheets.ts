@@ -123,16 +123,26 @@ export const useGoogleSheets = () => {
       setCustomSheetUrl(newUrl);
     }
     
+    // ניקוי הכל לחלוטין, עוצר כל בקשות קיימות
+    queryClient.clear();
+    
+    // רענון המידע מהשרת
     await refreshData();
     
-    // Invalidate all queries to force refetch with new URL
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ['main_menu'] }),
-      queryClient.invalidateQueries({ queryKey: ['pages'] }),
-      queryClient.invalidateQueries({ queryKey: ['content'] }),
-      queryClient.invalidateQueries({ queryKey: ['settings'] }),
-      queryClient.invalidateQueries({ queryKey: ['templates'] })
-    ]);
+    // איפוס והתחלה מחדש של כל הבקשות
+    queryClient.resetQueries();
+    
+    // טעינת הכל מחדש בכפייה
+    // await Promise.all([
+    //   queryClient.invalidateQueries({ queryKey: ['main_menu'] }),
+    //   queryClient.invalidateQueries({ queryKey: ['pages'] }),
+    //   queryClient.invalidateQueries({ queryKey: ['content'] }),
+    //   queryClient.invalidateQueries({ queryKey: ['settings'] }),
+    //   queryClient.invalidateQueries({ queryKey: ['templates'] })
+    // ]);
+    
+    // רענון הדף לאחר החלפת קישור
+    window.location.reload();
   };
 
   return {

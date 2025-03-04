@@ -110,9 +110,9 @@ export const fetchFromGoogleSheets = async (sheetName: string, customSheetUrl: s
     if (sheetName === 'settings') {
       console.log('Returning default settings due to error');
       return [
-        { key: 'siteName', value: 'אתר גוגל שיטס' },
-        { key: 'logo', value: 'https://via.placeholder.com/80x40' },
-        { key: 'footerText', value: 'כל הזכויות שמורות © 2025' },
+        { key: 'siteName', value: '' },
+        { key: 'logo', value: '' },
+        { key: 'footerText', value: '' },
         { key: 'primaryColor', value: '#1A73E8' },
         { key: 'secondaryColor', value: '#FF9800' },
         { key: 'language', value: 'he' },
@@ -228,9 +228,9 @@ export const fetchSettings = async (customSheetUrl: string | null = null): Promi
   
   // הגדרות ברירת מחדל, יתווספו רק אם הערכים חסרים בגיליון
   const defaultSettings = [
-    { key: 'siteName', value: 'אתר גוגל שיטס' },
-    { key: 'logo', value: 'https://via.placeholder.com/80x40' },
-    { key: 'footerText', value: 'כל הזכויות שמורות © 2025' },
+    { key: 'siteName', value: '' },
+    { key: 'logo', value: '' },
+    { key: 'footerText', value: '' },
     { key: 'primaryColor', value: '#1A73E8' },
     { key: 'secondaryColor', value: '#FF9800' },
     { key: 'language', value: 'he' },
@@ -289,6 +289,10 @@ export const fetchTemplates = async (customSheetUrl: string | null = null): Prom
 
 // Function to refresh all data
 export const refreshData = async () => {
+  // קודם כל ניקוי המטמון של react-query
+  queryClient.clear();
+  
+  // אז ביטול תוקף כל השאילתות הספציפיות
   await Promise.all([
     queryClient.invalidateQueries({ queryKey: ['main_menu'] }),
     queryClient.invalidateQueries({ queryKey: ['pages'] }),
@@ -296,6 +300,9 @@ export const refreshData = async () => {
     queryClient.invalidateQueries({ queryKey: ['settings'] }),
     queryClient.invalidateQueries({ queryKey: ['templates'] })
   ]);
+  
+  // איפוס מטמון נוסף במידת הצורך
+  queryClient.resetQueries();
 };
 
 // Get content for a specific page
