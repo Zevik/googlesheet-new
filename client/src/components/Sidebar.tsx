@@ -121,7 +121,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
         </div>
         
         <nav>
-          <h2 className="text-sm uppercase font-bold text-neutral-400 mb-2">תפריט ראשי</h2>
+          {/* הסתרת כותרת הקטגוריות מהתצוגה */}
           
           {/* בית - קישור ראשי לדף הבית */}
           <Link 
