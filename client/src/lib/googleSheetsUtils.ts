@@ -110,12 +110,13 @@ export const fetchFromGoogleSheets = async (sheetName: string, customSheetUrl: s
     if (sheetName === 'settings') {
       console.log('Returning default settings due to error');
       return [
-        { key: 'siteName', value: 'עולם הבינה המלאכותית' },
-        { key: 'logo', value: 'https://i.postimg.cc/8N2WrbLN/LOGOGO.jpg' },
-        { key: 'footerText', value: 'כל הזכויות שמורות לאתר הבינה המלאכותית © 2025' },
+        { key: 'siteName', value: 'אתר גוגל שיטס' },
+        { key: 'logo', value: 'https://via.placeholder.com/80x40' },
+        { key: 'footerText', value: 'כל הזכויות שמורות © 2025' },
         { key: 'primaryColor', value: '#1A73E8' },
         { key: 'secondaryColor', value: '#FF9800' },
-        { key: 'language', value: 'he' }
+        { key: 'language', value: 'he' },
+        { key: 'rtl', value: 'TRUE' }
       ];
     }
     
@@ -222,32 +223,40 @@ export const fetchSettings = async (customSheetUrl: string | null = null): Promi
   const data = await fetchFromGoogleSheets('settings', customSheetUrl);
   
   // בדיקת פורמט מיוחד של גיליון ההגדרות
-  // נבדוק אם יש עמודה עם הכותרת שמכילה 'siteName'
+  // ננסה לחלץ את ההגדרות ישירות מהנתונים שהגיעו מהגיליון
   const settings: Setting[] = [];
   
-  // הוספת ערכים ספציפיים מגיליון ההגדרות המיוחד
-  // אלו ערכים קבועים שיודעים לפי המחרוזות המדויקות שמופיעות בגיליון
-  settings.push({ key: 'siteName', value: 'עולם הבינה המלאכותית' });
-  settings.push({ key: 'logo', value: 'https://i.postimg.cc/8N2WrbLN/LOGOGO.jpg' });
-  settings.push({ key: 'footerText', value: 'כל הזכויות שמורות לאתר הבינה המלאכותית © 2025' });
-  settings.push({ key: 'primaryColor', value: '#1A73E8' });
-  settings.push({ key: 'secondaryColor', value: '#FF9800' });
-  settings.push({ key: 'language', value: 'he' });
+  // הגדרות ברירת מחדל, יתווספו רק אם הערכים חסרים בגיליון
+  const defaultSettings = [
+    { key: 'siteName', value: 'אתר גוגל שיטס' },
+    { key: 'logo', value: 'https://via.placeholder.com/80x40' },
+    { key: 'footerText', value: 'כל הזכויות שמורות © 2025' },
+    { key: 'primaryColor', value: '#1A73E8' },
+    { key: 'secondaryColor', value: '#FF9800' },
+    { key: 'language', value: 'he' },
+    { key: 'rtl', value: 'TRUE' }
+  ];
   
-  // תוספת הגדרות נוספות מהנתונים
+  // קריאת כל השורות בגיליון ההגדרות
   data.forEach(row => {
-    // בדיקה אם יש שורה עם מפתח 'address' או ערכים אחרים
-    const entries = Object.entries(row);
-    if (entries.length >= 2) {
-      // בדיקה של העמודה הראשונה אם היא מכילה ערך כמו 'address'
-      const firstCol = String(entries[0][1]).trim();
-      // הערך המתאים בעמודה השנייה 
-      const secondCol = String(entries[1][1]).trim();
-      
-      // הוספת הגדרות נוספות כמו כתובת, מספר טלפון וכדומה
-      if (firstCol && !firstCol.includes(' ') && firstCol !== 'key' && secondCol && secondCol !== 'value') {
-        // הוספת הגדרה נוספת לרשימה
-        settings.push({ key: firstCol, value: secondCol });
+    // בדיקה אם יש שורה עם 'key' ו-'value'
+    if (row.key && row.value) {
+      // הוספת הגדרה מהגיליון
+      settings.push({ key: String(row.key).trim(), value: String(row.value).trim() });
+    } else {
+      // בדיקה אם יש שורה עם מפתח 'address' או ערכים אחרים
+      const entries = Object.entries(row);
+      if (entries.length >= 2) {
+        // בדיקה של העמודה הראשונה אם היא מכילה ערך כמו 'address'
+        const firstCol = String(entries[0][1]).trim();
+        // הערך המתאים בעמודה השנייה 
+        const secondCol = String(entries[1][1]).trim();
+        
+        // הוספת הגדרות נוספות כמו כתובת, מספר טלפון וכדומה
+        if (firstCol && !firstCol.includes(' ') && firstCol !== 'key' && secondCol && secondCol !== 'value') {
+          // הוספת הגדרה נוספת לרשימה
+          settings.push({ key: firstCol, value: secondCol });
+        }
       }
     }
   });
@@ -256,6 +265,13 @@ export const fetchSettings = async (customSheetUrl: string | null = null): Promi
   const uniqueSettings = settings.filter((setting, index, self) => 
     index === self.findIndex(s => s.key === setting.key)
   );
+  
+  // הוספת ערכי ברירת מחדל עבור הגדרות שחסרות
+  defaultSettings.forEach(defaultSetting => {
+    if (!uniqueSettings.some(setting => setting.key === defaultSetting.key)) {
+      uniqueSettings.push(defaultSetting);
+    }
+  });
   
   console.log('Final processed settings:', uniqueSettings);
   return uniqueSettings;
