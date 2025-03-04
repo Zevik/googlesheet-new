@@ -32,8 +32,17 @@ export const setCurrentSheetUrl = (url: string | null): void => {
 // Generic function to fetch data from Google Sheets via our proxy server
 export const fetchFromGoogleSheets = async (sheetName: string, customSheetUrl: string | null = null): Promise<any[]> => {
   try {
-    // Use our server-side proxy to avoid CORS issues
-    const url = `/api/sheets/${encodeURIComponent(sheetName)}`;
+    // Determine the base URL based on the environment
+    // In Netlify, we need to ensure we're using the function path
+    const isNetlify = window.location.hostname.includes('.netlify.app');
+    let baseUrl = `/api/sheets/${encodeURIComponent(sheetName)}`;
+    
+    // If we're on Netlify, we might need the full path to the function
+    if (isNetlify) {
+      console.log(`Running in Netlify environment, using full function path for ${sheetName}`);
+      // Try both potential paths
+      baseUrl = `/.netlify/functions/server/api/sheets/${encodeURIComponent(sheetName)}`;
+    }
     
     // Create headers object with custom sheet URL if provided
     const headers: HeadersInit = {};
@@ -46,14 +55,26 @@ export const fetchFromGoogleSheets = async (sheetName: string, customSheetUrl: s
     else if (currentSheetUrl) {
       headers['x-sheet-url'] = currentSheetUrl;
     }
+
+    console.log(`Fetching sheet: ${sheetName} from URL: ${baseUrl}`);
     
-    const response = await fetch(url, { headers });
+    const response = await fetch(baseUrl, { 
+      headers,
+      // Add cache-busting to avoid stale data issues
+      cache: 'no-cache',
+    });
     
     if (!response.ok) {
+      console.error(`Failed to fetch ${sheetName}: status ${response.status} ${response.statusText}`);
       throw new Error(`Failed to fetch data: ${response.statusText}`);
     }
     
     const json: GoogleSheetsResponse = await response.json();
+    
+    if (!json.table || !json.table.cols || !json.table.rows) {
+      console.error(`Invalid response format for ${sheetName}:`, json);
+      throw new Error(`Invalid response format for ${sheetName}`);
+    }
     
     // Get column headers from the first row
     const headers2 = json.table.cols.map(col => col.label);
@@ -74,6 +95,21 @@ export const fetchFromGoogleSheets = async (sheetName: string, customSheetUrl: s
     });
   } catch (error) {
     console.error(`Error fetching ${sheetName} sheet:`, error);
+    
+    // אם אנחנו בגיליון settings ויש שגיאה, נחזיר את ההגדרות הבסיסיות
+    // כדי לאפשר לאתר לטעון באופן חלקי
+    if (sheetName === 'settings') {
+      console.log('Returning default settings due to error');
+      return [
+        { key: 'siteName', value: 'עולם הבינה המלאכותית' },
+        { key: 'logo', value: 'https://i.postimg.cc/8N2WrbLN/LOGOGO.jpg' },
+        { key: 'footerText', value: 'כל הזכויות שמורות לאתר הבינה המלאכותית © 2025' },
+        { key: 'primaryColor', value: '#1A73E8' },
+        { key: 'secondaryColor', value: '#FF9800' },
+        { key: 'language', value: 'he' }
+      ];
+    }
+    
     return [];
   }
 };

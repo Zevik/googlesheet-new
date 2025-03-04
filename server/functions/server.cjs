@@ -1,8 +1,16 @@
 const express = require('express');
 const path = require('path');
 const { log } = require('./vite.cjs'); // תיקון הנתיב לקובץ vite.cjs שנמצא באותה תיקייה
-// Use node-fetch version 2 which is CommonJS compatible
-const fetch = require('node-fetch');
+// Use isomorphic-fetch which works in both browser and server environments
+require('isomorphic-fetch');
+// As a fallback, also try to use node-fetch
+let fetch;
+try {
+  fetch = require('node-fetch');
+} catch (e) {
+  console.log('node-fetch not available, using global fetch from isomorphic-fetch');
+  fetch = global.fetch;
+}
 
 // Create Express app
 const app = express();
@@ -42,6 +50,12 @@ function defineRoutes() {
       const sheetName = req.params.sheetName;
       console.log('API request for sheet:', sheetName);
       
+      // Validate sheet name to prevent injection attacks
+      if (!sheetName || !/^[a-zA-Z0-9_-]+$/.test(sheetName)) {
+        console.error('Invalid sheet name:', sheetName);
+        return res.status(400).json({ error: 'Invalid sheet name' });
+      }
+      
       // Check if custom sheet URL was provided in the request
       let sheetId = DEFAULT_SHEET_ID;
       const customSheetUrl = req.headers['x-sheet-url'];
@@ -51,6 +65,8 @@ function defineRoutes() {
         if (extractedId) {
           sheetId = extractedId;
           console.log('Using custom sheet ID:', sheetId);
+        } else {
+          console.warn('Invalid custom sheet URL format:', customSheetUrl);
         }
       }
       
@@ -58,41 +74,57 @@ function defineRoutes() {
       
       console.log(`Fetching from sheet ID: ${sheetId}, sheet name: ${sheetName}`);
       
-      // Using fetch that was imported at the top of the file
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        console.error(`Google Sheets API error: ${response.status} ${response.statusText}`);
-        return res.status(response.status).json({ 
-          error: `Failed to fetch data from Google Sheets: ${response.statusText}` 
+      try {
+        // Using fetch that was imported at the top of the file
+        const response = await fetch(url, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Netlify Function)',
+            'Accept': 'text/html,application/xhtml+xml,application/xml,application/json;q=0.9,*/*;q=0.8'
+          },
+          timeout: 10000 // 10 second timeout
+        });
+        
+        if (!response.ok) {
+          console.error(`Google Sheets API error: ${response.status} ${response.statusText}`);
+          return res.status(response.status).json({ 
+            error: `Failed to fetch data from Google Sheets: ${response.statusText}` 
+          });
+        }
+        
+        const text = await response.text();
+        
+        // Extract the JSON part from the response
+        // The response is in the format: /*O_o*/ google.visualization.Query.setResponse({...});
+        const jsonText = text.replace(/^\/\*O_o\*\/\s*google\.visualization\.Query\.setResponse\(/, '')
+                          .replace(/\);$/, '');
+        
+        if (!jsonText) {
+          console.error('Failed to extract JSON from Google Sheets response');
+          return res.status(500).json({ error: 'Failed to extract JSON data from Google Sheets response' });
+        }
+        
+        // Check if jsonText is valid JSON
+        try {
+          JSON.parse(jsonText);
+        } catch (err) {
+          console.error('Invalid JSON from Google Sheets:', err);
+          console.log('Raw response:', text);
+          return res.status(500).json({ error: 'Invalid JSON response from Google Sheets' });
+        }
+        
+        // Set headers and send the response
+        res.set('Content-Type', 'application/json');
+        res.set('Cache-Control', 'no-cache');
+        res.set('Access-Control-Allow-Origin', '*');
+        res.set('Access-Control-Allow-Headers', 'Content-Type, x-sheet-url');
+        res.send(jsonText);
+      } catch (fetchError) {
+        console.error('Fetch error:', fetchError);
+        return res.status(500).json({ 
+          error: 'Failed to connect to Google Sheets API', 
+          details: fetchError.message
         });
       }
-      
-      const text = await response.text();
-      
-      // Extract the JSON part from the response
-      // The response is in the format: /*O_o*/ google.visualization.Query.setResponse({...});
-      const jsonText = text.replace(/^\/\*O_o\*\/\s*google\.visualization\.Query\.setResponse\(/, '')
-                         .replace(/\);$/, '');
-      
-      if (!jsonText) {
-        console.error('Failed to extract JSON from Google Sheets response');
-        return res.status(500).json({ error: 'Failed to extract JSON data from Google Sheets response' });
-      }
-      
-      // Check if jsonText is valid JSON
-      try {
-        JSON.parse(jsonText);
-      } catch (err) {
-        console.error('Invalid JSON from Google Sheets:', err);
-        console.log('Raw response:', text);
-        return res.status(500).json({ error: 'Invalid JSON response from Google Sheets' });
-      }
-      
-      // Set headers and send the response
-      res.set('Content-Type', 'application/json');
-      res.send(jsonText);
-      
     } catch (error) {
       console.error('API error:', error);
       return res.status(500).json({ error: 'Internal server error', details: error.message });
@@ -122,6 +154,84 @@ exports.handler = async function(event, context) {
     // Bridge between Netlify event and Express
     // נשנה את ההתנהגות כדי שיתמוך גם בניתוב ישיר לנתיב וגם בניתוב דרך פונקציות נטליפיי
     console.log('Original path:', event.path);
+    
+    // Check for OPTIONS requests and handle CORS preflight
+    if (event.httpMethod === 'OPTIONS') {
+      return {
+        statusCode: 204,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Content-Type, x-sheet-url',
+          'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,OPTIONS',
+          'Access-Control-Max-Age': '86400'
+        },
+        body: ''
+      };
+    }
+    
+    // Handle API requests for Google Sheets
+    if (event.path.includes('/api/sheets/') || event.path.includes('/.netlify/functions/server/api/sheets/')) {
+      // Extract sheet name from path
+      const sheetNameMatch = event.path.match(/\/api\/sheets\/([^\/]+)$/) || 
+                            event.path.match(/\/.netlify\/functions\/server\/api\/sheets\/([^\/]+)$/);
+      
+      if (sheetNameMatch && sheetNameMatch[1]) {
+        const sheetName = decodeURIComponent(sheetNameMatch[1]);
+        console.log('Direct function call for sheet:', sheetName);
+        
+        // Create a simplified req object
+        req.params = { sheetName };
+        req.headers = event.headers;
+        req.method = event.httpMethod;
+        
+        // Create a simplified response handler
+        res.status = (code) => {
+          res.statusCode = code;
+          return res;
+        };
+        
+        res.set = (name, value) => {
+          if (!res.headers) res.headers = {};
+          res.headers[name] = value;
+          return res;
+        };
+        
+        res.json = (data) => {
+          return {
+            statusCode: res.statusCode || 200,
+            headers: Object.assign({}, res.headers || {}, { 'Content-Type': 'application/json' }),
+            body: JSON.stringify(data)
+          };
+        };
+        
+        res.send = (data) => {
+          return {
+            statusCode: res.statusCode || 200,
+            headers: Object.assign({}, res.headers || {}, { 'Content-Type': 'application/json' }),
+            body: typeof data === 'object' ? JSON.stringify(data) : data
+          };
+        };
+        
+        // Find and execute the handler
+        const apiHandler = app._router.stack
+          .filter(layer => layer.route && (
+            layer.route.path === '/api/sheets/:sheetName' || 
+            layer.route.path === '/.netlify/functions/server/api/sheets/:sheetName'
+          ))
+          .map(layer => layer.route.stack[0].handle)[0];
+        
+        if (apiHandler) {
+          return apiHandler(req, res, () => {
+            return {
+              statusCode: 404,
+              body: 'Not Found'
+            };
+          });
+        }
+      }
+    }
+    
+    // Standard handling for other paths
     const normalizedPath = event.path
       .replace(/^\/.netlify\/functions\/server/, '') // מסיר את הקידומת של נטליפיי פונקציות
       .replace(/^\/\.netlify\/functions\/server/, '') // מסיר קידומות אפשריות אחרות
