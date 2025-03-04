@@ -32,17 +32,8 @@ export const setCurrentSheetUrl = (url: string | null): void => {
 // Generic function to fetch data from Google Sheets via our proxy server
 export const fetchFromGoogleSheets = async (sheetName: string, customSheetUrl: string | null = null): Promise<any[]> => {
   try {
-    // Determine the base URL based on the environment
-    // In Netlify, we need to ensure we're using the function path
-    const isNetlify = window.location.hostname.includes('.netlify.app');
-    let baseUrl = `/api/sheets/${encodeURIComponent(sheetName)}`;
-    
-    // If we're on Netlify, we might need the full path to the function
-    if (isNetlify) {
-      console.log(`Running in Netlify environment, using full function path for ${sheetName}`);
-      // Try both potential paths
-      baseUrl = `/.netlify/functions/server/api/sheets/${encodeURIComponent(sheetName)}`;
-    }
+    // פשוט תמיד להשתמש באותו ניתוב API
+    const baseUrl = `/api/sheets/${encodeURIComponent(sheetName)}`;
     
     // Create headers object with custom sheet URL if provided
     const headers: HeadersInit = {};
@@ -70,11 +61,6 @@ export const fetchFromGoogleSheets = async (sheetName: string, customSheetUrl: s
     }
     
     const json: GoogleSheetsResponse = await response.json();
-    
-    if (!json.table || !json.table.cols || !json.table.rows) {
-      console.error(`Invalid response format for ${sheetName}:`, json);
-      throw new Error(`Invalid response format for ${sheetName}`);
-    }
     
     // Get column headers from the first row
     const headers2 = json.table.cols.map(col => col.label);

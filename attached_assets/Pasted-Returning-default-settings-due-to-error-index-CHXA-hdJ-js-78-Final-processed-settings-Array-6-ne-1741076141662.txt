@@ -1,0 +1,44 @@
+Returning default settings due to error
+index-CHXA-hdJ.js:78 Final processed settings: Array(6)
+/.netlify/functions/server/api/sheets/content:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 ()Understand this errorAI
+index-CHXA-hdJ.js:78 Failed to fetch content: status 404 
+Yo @ index-CHXA-hdJ.js:78Understand this errorAI
+index-CHXA-hdJ.js:78 Error fetching content sheet: Error: Failed to fetch data: 
+    at Yo (index-CHXA-hdJ.js:78:24110)
+    at async zw (index-CHXA-hdJ.js:78:25435)
+Yo @ index-CHXA-hdJ.js:78Understand this errorAI
+/.netlify/functions/server/api/sheets/settings:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 ()Understand this errorAI
+index-CHXA-hdJ.js:78 Failed to fetch settings: status 404 
+Yo @ index-CHXA-hdJ.js:78Understand this errorAI
+index-CHXA-hdJ.js:78 Error fetching settings sheet: Error: Failed to fetch data: 
+    at Yo (index-CHXA-hdJ.js:78:24110)
+    at async Bu (index-CHXA-hdJ.js:78:26112)
+Yo @ index-CHXA-hdJ.js:78Understand this errorAI
+index-CHXA-hdJ.js:78 Returning default settings due to error
+index-CHXA-hdJ.js:78 Final processed settings: Array(6)
+/.netlify/functions/server/api/sheets/main_menu:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 ()Understand this errorAI
+index-CHXA-hdJ.js:78 Failed to fetch main_menu: status 404 
+Yo @ index-CHXA-hdJ.js:78Understand this errorAI
+index-CHXA-hdJ.js:78 Error fetching main_menu sheet: Error: Failed to fetch data: 
+    at Yo (index-CHXA-hdJ.js:78:24110)
+    at async Em (index-CHXA-hdJ.js:78:24989)
+Yo @ index-CHXA-hdJ.js:78Understand this errorAI
+/.netlify/functions/server/api/sheets/pages:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 ()Understand this errorAI
+index-CHXA-hdJ.js:78 Failed to fetch pages: status 404 
+Yo @ index-CHXA-hdJ.js:78Understand this errorAI
+index-CHXA-hdJ.js:78 Error fetching pages sheet: Error: Failed to fetch data: 
+    at Yo (index-CHXA-hdJ.js:78:24110)
+    at async Cm (index-CHXA-hdJ.js:78:25191)
+Yo @ index-CHXA-hdJ.js:78Understand this errorAI

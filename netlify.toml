@@ -1,47 +1,23 @@
 [build]
-  command = "npm run build && mkdir -p dist/functions && cp server/functions/server.cjs dist/functions/server.js && cp server/functions/vite.cjs dist/functions/vite.cjs && npm install node-fetch@2 isomorphic-fetch --no-save && echo 'Build completed successfully'"
+  # Simple build command that prepares our server file
+  command = "npm run build && mkdir -p dist/functions && cp server/functions/server.js dist/functions/ && npm install node-fetch@2 --no-save && echo 'Build completed successfully'"
   publish = "dist/public"
   ignore_warnings = true
 
 [functions]
   directory = "dist/functions"
-  node_bundler = "esbuild"
 
 # Force Node.js 18.x for compatibility
 [build.environment]
   NODE_VERSION = "18"
-  NETLIFY_USE_NEXTJS = "false"
 
-# API redirects - order matters here!
-[[redirects]]
-  from = "/.netlify/functions/server/api/sheets/:sheetName"
-  to = "/.netlify/functions/server/api/sheets/:sheetName"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/api/sheets/:sheetName"
-  to = "/.netlify/functions/server/api/sheets/:sheetName"
-  status = 200
-  force = true
-
+# Two simple redirects
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/server/:splat"
+  to = "/.netlify/functions/server/api/:splat"
   status = 200
-  force = true
 
-# SPA fallback
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
-# Headers to ensure CORS and proper caching
-[[headers]]
-  for = "/api/*"
-  [headers.values]
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Headers = "Origin, X-Requested-With, Content-Type, Accept, x-sheet-url"
-    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
-    Cache-Control = "no-cache"

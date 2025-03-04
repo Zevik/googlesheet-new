@@ -1,112 +1,112 @@
-import express from 'express';
-import { registerRoutes } from '../routes.js';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { log, serveStatic } from '../vite.js';
+const fetch = require('node-fetch');
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// Default Google Sheet ID
+const DEFAULT_SHEET_ID = '1IvAFeW8EUKR_kdzX9mpU9PW9BrTDAjS7pC35Gzn2_dI';
 
-const app = express();
+// Function to extract sheet ID from URL
+function extractSheetId(url) {
+  const regex = /https:\/\/docs\.google\.com\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/;
+  const match = url.match(regex);
+  return match ? match[1] : null;
+}
 
-// Enable CORS for Netlify
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
-
-// Serve static files from the dist folder
-app.use(express.static(path.resolve(__dirname, '../../public')));
-
-// Parse JSON request bodies
-app.use(express.json());
-
-// Routes will be registered in the handler function
-let routesRegistered = false;
-
-// For Netlify Functions - create a serverless handler
-export async function handler(event, context) {
-  // Register routes if not done yet
-  if (!routesRegistered) {
-    await registerRoutes(app);
-    routesRegistered = true;
-  }
-
-  // Log the incoming request for debugging
-  log(`Request: ${event.path} [${event.httpMethod}]`);
-
-  // Create a new Express Router for each invocation
-  const router = express.Router();
-  
-  // This router will handle all requests to the serverless function
-  router.all('*', (req, res) => {
-    // Bridge between Netlify event and Express
-    req.path = event.path.replace(/^\/.netlify\/functions\/server/, '') || '/';
-    req.method = event.httpMethod;
-    req.headers = event.headers;
-    req.query = event.queryStringParameters || {};
+// Handle Google Sheets API requests
+async function handleGoogleSheetsRequest(event) {
+  try {
+    // Extract sheet name from URL
+    const sheetMatch = event.path.match(/\/api\/sheets\/([^\/]+)$/) || 
+                      event.path.match(/\/.netlify\/functions\/server\/api\/sheets\/([^\/]+)$/);
     
-    if (event.body) {
-      try {
-        req.body = JSON.parse(event.body);
-      } catch (error) {
-        req.body = event.body;
+    if (!sheetMatch || !sheetMatch[1]) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Invalid sheet name in URL' })
+      };
+    }
+    
+    const sheetName = decodeURIComponent(sheetMatch[1]);
+    console.log('API request for sheet:', sheetName);
+    
+    // Get sheet ID (default or custom)
+    let sheetId = DEFAULT_SHEET_ID;
+    const customSheetUrl = event.headers['x-sheet-url'];
+    
+    if (customSheetUrl) {
+      const extractedId = extractSheetId(customSheetUrl);
+      if (extractedId) {
+        sheetId = extractedId;
+        console.log('Using custom sheet ID:', sheetId);
       }
     }
     
-    // Create a response object for Netlify
-    const response = {
-      statusCode: 200,
-      headers: {},
-      body: ''
-    };
+    // Fetch from Google Sheets
+    const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+    console.log(`Fetching from URL: ${url}`);
     
-    // Intercept res methods
-    const originalJson = res.json;
-    const originalSend = res.send;
-    const originalStatus = res.status;
+    const response = await fetch(url);
     
-    res.status = (code) => {
-      response.statusCode = code;
-      return res;
-    };
-    
-    res.set = (name, value) => {
-      response.headers[name] = value;
-      return res;
-    };
-    
-    res.json = (data) => {
-      response.body = JSON.stringify(data);
-      response.headers['Content-Type'] = 'application/json';
-      return response;
-    };
-    
-    res.send = (data) => {
-      response.body = typeof data === 'object' ? JSON.stringify(data) : data;
-      return response;
-    };
-    
-    // Process the request through the Express app
-    app(req, res, () => {
-      // If we get here, no route handled the request
+    if (!response.ok) {
+      console.error('Google Sheets API error:', response.status, response.statusText);
       return {
-        statusCode: 404,
-        body: 'Not Found'
+        statusCode: response.status,
+        body: JSON.stringify({ error: `Failed to fetch data: ${response.statusText}` })
       };
-    });
-  });
-  
-  // Handle the request
-  try {
-    const result = await router(event, context);
-    return result;
+    }
+    
+    const text = await response.text();
+    
+    // Extract JSON from the Google Sheets response format
+    const jsonText = text.replace(/^\/\*O_o\*\/\s*google\.visualization\.Query\.setResponse\(/, '')
+                     .replace(/\);$/, '');
+    
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: jsonText
+    };
+    
   } catch (error) {
-    log(`Error processing request: ${error}`);
+    console.error('Error handling Google Sheets request:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Internal Server Error' })
+      body: JSON.stringify({ error: 'Internal server error', details: error.message })
     };
   }
 }
+
+// Main serverless function handler
+exports.handler = async function(event, context) {
+  // Set CORS headers
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type, x-sheet-url',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Cache-Control': 'no-cache'
+  };
+  
+  // Handle preflight requests
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 204,
+      headers,
+      body: ''
+    };
+  }
+  
+  // Handle Google Sheets API requests
+  if (event.path.includes('/api/sheets/')) {
+    const response = await handleGoogleSheetsRequest(event);
+    // Add CORS headers to the response
+    return {
+      ...response,
+      headers: { ...headers, ...response.headers }
+    };
+  }
+  
+  // For any other request
+  return {
+    statusCode: 404,
+    headers,
+    body: JSON.stringify({ error: 'Endpoint not found' })
+  };
+};
