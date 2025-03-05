@@ -2,12 +2,28 @@ import React from 'react';
 import { ContentBlock as ContentBlockType } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 
 interface ContentBlockProps {
   block: ContentBlockType;
 }
 
 const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
+  const { getSetting } = useGoogleSheets();
+  
+  // Get styling settings from Google Sheets
+  const contentSpacing = getSetting('contentSpacing') || '24px';
+  const pageBackground = getSetting('pageBackground') || '#f8f8fb';
+  const headingColor = getSetting('headingColor') || '#333333';
+  const cardBackground = getSetting('cardBackground') || '#ffffff';
+  const cardBorderRadius = getSetting('cardBorderRadius') || '8px';
+  const cardPadding = getSetting('cardPadding') || '24px';
+  const cardMargin = getSetting('cardMargin') || '24px';
+  const boxBackground = getSetting('boxBackground') || 'rgba(248, 248, 251, 0.7)';
+  const questionColor = getSetting('questionColor') || '#7e3f98';
+  const cardStyleSetting = getSetting('cardStyle') || 'default';
+  const contentLineHeight = getSetting('contentLineHeight') || '1.6';
+
   // Convert content_type to lowercase for case-insensitive comparison
   const contentType = (block.content_type || '').toLowerCase();
   console.log('Content type:', block.content_type, 'Lowercase:', contentType);
@@ -103,10 +119,28 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
       // יצירת אלמנט הכותרת המתאים לרמה
       const HeadingTag = `h${titleInfo.level}` as keyof JSX.IntrinsicElements;
       
+      // Apply custom styling from settings
+      const titleCardStyle = {
+        backgroundColor: cardBackground,
+        borderRadius: cardBorderRadius,
+        margin: cardMargin === '0' ? '0' : `${cardMargin} 0`,
+        boxShadow: cardStyleSetting === 'soft' ? '0 2px 8px rgba(0,0,0,0.05)' : 
+                   cardStyleSetting === 'modern' ? '0 4px 12px rgba(0,0,0,0.08)' : 
+                   'none'
+      };
+      
+      const headingStyle = {
+        color: headingColor,
+        lineHeight: contentLineHeight
+      };
+      
       return (
-        <Card className="bg-white rounded-lg shadow-sm">
-          <CardContent className="p-6">
-            <HeadingTag className={`${titleClassName} ${marginClassName}`}>
+        <Card className="w-full" style={titleCardStyle}>
+          <CardContent className="p-6" style={{ padding: cardPadding }}>
+            <HeadingTag 
+              className={`${titleClassName} ${marginClassName}`}
+              style={headingStyle}
+            >
               {titleInfo.content}
             </HeadingTag>
           </CardContent>
@@ -115,12 +149,39 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
 
     case 'text':
     case 'טקסט':
+      // Apply custom styling from settings
+      const textCardStyle = {
+        backgroundColor: cardBackground,
+        borderRadius: cardBorderRadius,
+        margin: cardMargin === '0' ? '0' : `calc(${contentSpacing}) 0`,
+        boxShadow: cardStyleSetting === 'soft' ? '0 2px 8px rgba(0,0,0,0.05)' : 
+                  cardStyleSetting === 'modern' ? '0 4px 12px rgba(0,0,0,0.08)' : 
+                  'none'
+      };
+      
+      const textContentStyle = {
+        lineHeight: contentLineHeight
+      };
+      
+      // Determine if this should be styled as a special box based on description
+      let boxClassName = "";
+      if (block.description === 'question-highlight') {
+        boxClassName = "bg-purple-50 border border-purple-100";
+      } else if (block.description === 'content-box') {
+        boxClassName = "bg-white shadow-sm";
+      } else if (block.description === 'highlight-box') {
+        boxClassName = `bg-opacity-5 border border-opacity-10 rounded-lg p-4 border-[${questionColor}] bg-[${questionColor}]`;
+      }
+      
       return (
-        <Card className="bg-white rounded-lg shadow-sm">
-          <CardContent className="p-6">
+        <Card className="w-full" style={textCardStyle}>
+          <CardContent style={{ padding: cardPadding }}>
             <div 
-              className="prose max-w-none" 
-              dangerouslySetInnerHTML={{ __html: block.content }}
+              className={`prose max-w-none ${boxClassName}`}
+              style={textContentStyle}
+              dangerouslySetInnerHTML={{ 
+                __html: block.content 
+              }}
             />
           </CardContent>
         </Card>
