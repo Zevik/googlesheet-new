@@ -241,7 +241,7 @@ const FolderPage: React.FC = () => {
         gap: contentSpacing 
       }}>
         {content.map(block => (
-          <ContentBlock key={block.id} block={block} />
+          <ContentBlock key={block.id} block={block} useContentSpacing={true} />
         ))}
       </div>
     </div>

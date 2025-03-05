@@ -6,9 +6,10 @@ import { useGoogleSheets } from '@/hooks/useGoogleSheets';
 
 interface ContentBlockProps {
   block: ContentBlockType;
+  useContentSpacing?: boolean;
 }
 
-const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
+const ContentBlock: React.FC<ContentBlockProps> = ({ block, useContentSpacing = false }) => {
   const { getSetting } = useGoogleSheets();
   
   // Get styling settings from Google Sheets
@@ -25,14 +26,21 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
   const contentLineHeight = getSetting('contentLineHeight') || '1.6';
   
   // Define card style based on settings
-  const getCardStyle = () => ({
-    backgroundColor: cardBackground,
-    borderRadius: cardBorderRadius,
-    margin: cardMargin === '0' ? '0' : `${cardMargin} 0`,
-    boxShadow: cardStyleSetting === 'soft' ? '0 2px 8px rgba(0,0,0,0.05)' : 
-               cardStyleSetting === 'modern' ? '0 4px 12px rgba(0,0,0,0.08)' : 
-               'none'
-  });
+  const getCardStyle = () => {
+    // אם אנחנו צריכים להשתמש בהגדרת ריווח התוכן, נשתמש בו במקום גישה המרווח הקבוע
+    const marginValue = useContentSpacing 
+      ? (contentSpacing === '0' ? '0' : `0`)
+      : (cardMargin === '0' ? '0' : `${cardMargin} 0`);
+      
+    return {
+      backgroundColor: cardBackground,
+      borderRadius: cardBorderRadius,
+      margin: marginValue,
+      boxShadow: cardStyleSetting === 'soft' ? '0 2px 8px rgba(0,0,0,0.05)' : 
+                cardStyleSetting === 'modern' ? '0 4px 12px rgba(0,0,0,0.08)' : 
+                'none'
+    };
+  };
 
   // Convert content_type to lowercase for case-insensitive comparison
   const contentType = (block.content_type || '').toLowerCase();
@@ -130,14 +138,7 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
       const HeadingTag = `h${titleInfo.level}` as keyof JSX.IntrinsicElements;
       
       // Apply custom styling from settings
-      const titleCardStyle = {
-        backgroundColor: cardBackground,
-        borderRadius: cardBorderRadius,
-        margin: cardMargin === '0' ? '0' : `${cardMargin} 0`,
-        boxShadow: cardStyleSetting === 'soft' ? '0 2px 8px rgba(0,0,0,0.05)' : 
-                   cardStyleSetting === 'modern' ? '0 4px 12px rgba(0,0,0,0.08)' : 
-                   'none'
-      };
+      const titleCardStyle = getCardStyle();
       
       const headingStyle = {
         color: headingColor,
@@ -160,14 +161,7 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
     case 'text':
     case 'טקסט':
       // Apply custom styling from settings
-      const textCardStyle = {
-        backgroundColor: cardBackground,
-        borderRadius: cardBorderRadius,
-        margin: cardMargin === '0' ? '0' : `calc(${contentSpacing}) 0`,
-        boxShadow: cardStyleSetting === 'soft' ? '0 2px 8px rgba(0,0,0,0.05)' : 
-                  cardStyleSetting === 'modern' ? '0 4px 12px rgba(0,0,0,0.08)' : 
-                  'none'
-      };
+      const textCardStyle = getCardStyle();
       
       const textContentStyle = {
         lineHeight: contentLineHeight
