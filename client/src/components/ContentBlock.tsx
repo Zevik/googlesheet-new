@@ -23,6 +23,16 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
   const questionColor = getSetting('questionColor') || '#7e3f98';
   const cardStyleSetting = getSetting('cardStyle') || 'default';
   const contentLineHeight = getSetting('contentLineHeight') || '1.6';
+  
+  // Define card style based on settings
+  const getCardStyle = () => ({
+    backgroundColor: cardBackground,
+    borderRadius: cardBorderRadius,
+    margin: cardMargin === '0' ? '0' : `${cardMargin} 0`,
+    boxShadow: cardStyleSetting === 'soft' ? '0 2px 8px rgba(0,0,0,0.05)' : 
+               cardStyleSetting === 'modern' ? '0 4px 12px rgba(0,0,0,0.08)' : 
+               'none'
+  });
 
   // Convert content_type to lowercase for case-insensitive comparison
   const contentType = (block.content_type || '').toLowerCase();
@@ -191,12 +201,14 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
     case 'תמונה':
       // Use the helper function to handle Unsplash URLs
       const imageUrl = getUnsplashImageUrl(block.content);
+      const imageCardStyle = getCardStyle();
+      
       return (
-        <Card className="bg-white rounded-lg shadow-sm">
-          <CardContent className="p-6">
+        <Card className="w-full" style={imageCardStyle}>
+          <CardContent style={{ padding: cardPadding }}>
             <div className="space-y-4">
               {block.title && (
-                <h3 className="text-xl font-medium text-neutral-800">{block.title}</h3>
+                <h3 className="text-xl font-medium" style={{ color: headingColor }}>{block.title}</h3>
               )}
               <div className="aspect-w-16 aspect-h-9 overflow-hidden rounded-lg">
                 <img 
@@ -215,12 +227,14 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
 
     case 'youtube':
     case 'יוטיוב':
+      const youtubeCardStyle = getCardStyle();
+      
       return (
-        <Card className="bg-white rounded-lg shadow-sm">
-          <CardContent className="p-6">
+        <Card className="w-full" style={youtubeCardStyle}>
+          <CardContent style={{ padding: cardPadding }}>
             <div className="space-y-4">
               {block.title && (
-                <h3 className="text-xl font-medium text-neutral-800">{block.title}</h3>
+                <h3 className="text-xl font-medium" style={{ color: headingColor }}>{block.title}</h3>
               )}
               <div className="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden">
                 <iframe
@@ -241,17 +255,20 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
 
     case 'link':
     case 'קישור':
+      const linkCardStyle = getCardStyle();
+      
       return (
-        <Card className="bg-white rounded-lg shadow-sm">
-          <CardContent className="p-6">
+        <Card className="w-full" style={linkCardStyle}>
+          <CardContent style={{ padding: cardPadding }}>
             <div className="space-y-4">
               {block.title && (
-                <h3 className="text-xl font-medium text-neutral-800">{block.title}</h3>
+                <h3 className="text-xl font-medium" style={{ color: headingColor }}>{block.title}</h3>
               )}
               <div className="flex">
                 <a 
                   href={block.content} 
-                  className="text-primary hover:underline flex items-center"
+                  className="hover:underline flex items-center"
+                  style={{ color: questionColor }}
                   target="_blank" 
                   rel="noopener noreferrer"
                 >
@@ -266,14 +283,17 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
 
     case 'list':
     case 'רשימה':
+      const listCardStyle = getCardStyle();
+      const listContentStyle = { lineHeight: contentLineHeight };
+      
       return (
-        <Card className="bg-white rounded-lg shadow-sm">
-          <CardContent className="p-6">
+        <Card className="w-full" style={listCardStyle}>
+          <CardContent style={{ padding: cardPadding }}>
             <div className="space-y-4">
               {block.title && (
-                <h3 className="text-xl font-medium text-neutral-800">{block.title}</h3>
+                <h3 className="text-xl font-medium" style={{ color: headingColor }}>{block.title}</h3>
               )}
-              <ul className="list-disc list-inside space-y-2">
+              <ul className="list-disc list-inside space-y-2" style={listContentStyle}>
                 {block.content.split('\n').map((item, index) => (
                   <li key={index}>{item.trim()}</li>
                 ))}
@@ -288,22 +308,24 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
       // Parse table content
       // Assuming the content is in CSV or similar format
       const rows = block.content.split('\n').map(row => row.split(','));
+      const tableCardStyle = getCardStyle();
       
       return (
-        <Card className="bg-white rounded-lg shadow-sm">
-          <CardContent className="p-6">
+        <Card className="w-full" style={tableCardStyle}>
+          <CardContent style={{ padding: cardPadding }}>
             <div className="space-y-4">
               {block.title && (
-                <h3 className="text-xl font-medium text-neutral-800">{block.title}</h3>
+                <h3 className="text-xl font-medium" style={{ color: headingColor }}>{block.title}</h3>
               )}
               <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
+                <table className="w-full border-collapse" style={{ lineHeight: contentLineHeight }}>
                   <thead>
                     <tr className="bg-neutral-50">
                       {rows[0].map((cell, index) => (
                         <th 
                           key={index} 
-                          className="px-4 py-2 text-right font-medium text-neutral-800 border border-neutral-200"
+                          className="px-4 py-2 text-right font-medium border border-neutral-200"
+                          style={{ color: headingColor }}
                         >
                           {cell.trim()}
                         </th>
@@ -341,18 +363,20 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
 
     case 'file':
     case 'קובץ':
+      const fileCardStyle = getCardStyle();
+      
       return (
-        <Card className="bg-white rounded-lg shadow-sm">
-          <CardContent className="p-6">
+        <Card className="w-full" style={fileCardStyle}>
+          <CardContent style={{ padding: cardPadding }}>
             <div className="space-y-4">
               {block.title && (
-                <h3 className="text-xl font-medium text-neutral-800">{block.title}</h3>
+                <h3 className="text-xl font-medium" style={{ color: headingColor }}>{block.title}</h3>
               )}
               <div className="p-4 border border-neutral-200 rounded-lg">
                 <div className="flex items-center">
                   <span className="material-icons text-neutral-400 mr-3">description</span>
                   <div className="flex-1">
-                    <p className="font-medium text-neutral-800">
+                    <p className="font-medium" style={{ color: headingColor }}>
                       {getFileName(block.content)}
                     </p>
                     <p className="text-sm text-neutral-500">{block.description}</p>
@@ -364,7 +388,7 @@ const ContentBlock: React.FC<ContentBlockProps> = ({ block }) => {
                     className="p-2 rounded-full hover:bg-neutral-50"
                     download
                   >
-                    <span className="material-icons text-primary">download</span>
+                    <span className="material-icons" style={{ color: questionColor }}>download</span>
                   </a>
                 </div>
               </div>

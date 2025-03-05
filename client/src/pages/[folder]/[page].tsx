@@ -212,17 +212,32 @@ const FolderPage: React.FC = () => {
   // בדיקה אם צריך להציג את כותרת העמוד או לא
   const hasH1TitleAsFirstBlock = shouldHideTitleHeader();
 
+  // קבל את הגדרות הסגנון מגוגל שיטס
+  const { getSetting } = useGoogleSheets();
+  const headingColor = getSetting('headingColor') || '#333333';
+  const contentSpacing = getSetting('contentSpacing') || '24px';
+  const pageWidth = getSetting('pageWidth') || '80%';
+
   // אם יש כותרת h1 כבלוק הראשון, לא נציג את כותרת הדף (למניעת כפילות)
   return (
-    <div>
+    <div style={{ maxWidth: pageWidth, margin: '0 auto' }}>
       {!hasH1TitleAsFirstBlock && (
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-neutral-800 mb-2">{page.page_name}</h1>
+          <h1 
+            className="text-3xl font-bold mb-2"
+            style={{ color: headingColor }}
+          >
+            {page.page_name}
+          </h1>
           <p className="text-neutral-500">{page.meta_description}</p>
         </div>
       )}
 
-      <div className="space-y-8">
+      <div style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: contentSpacing 
+      }}>
         {content.map(block => (
           <ContentBlock key={block.id} block={block} />
         ))}
