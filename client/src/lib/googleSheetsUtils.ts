@@ -116,7 +116,18 @@ export const fetchFromGoogleSheets = async (sheetName: string, customSheetUrl: s
         { key: 'primaryColor', value: '#1A73E8' },
         { key: 'secondaryColor', value: '#FF9800' },
         { key: 'language', value: 'he' },
-        { key: 'rtl', value: 'TRUE' }
+        { key: 'rtl', value: 'TRUE' },
+        { key: 'contentSpacing', value: '24px' },
+        { key: 'pageBackground', value: '#f8f8fb' },
+        { key: 'headingColor', value: '#7e3f98' },
+        { key: 'cardBackground', value: '#ffffff' },
+        { key: 'cardBorderRadius', value: '8px' },
+        { key: 'cardPadding', value: '24px' },
+        { key: 'cardMargin', value: '24px' },
+        { key: 'pageWidth', value: '80%' },
+        { key: 'questionColor', value: '#7e3f98' },
+        { key: 'contentLineHeight', value: '1.6' },
+        { key: 'boxBackground', value: 'rgba(248, 248, 251, 0.7)' }
       ];
     }
     
