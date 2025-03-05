@@ -15,7 +15,8 @@ let currentSheetUrl: string | null = (() => {
   try {
     // בדיקה אם אנחנו בסביבת דפדפן (יש לוקל סטורג')
     if (typeof localStorage !== 'undefined') {
-      const savedUrl = localStorage.getItem('sheetsURL');
+      // עדיפות לקבלת URLs מהניהול החדש (googleSheetsUrl)
+      const savedUrl = localStorage.getItem('googleSheetsUrl') || localStorage.getItem('sheetsURL');
       if (savedUrl) {
         console.log('Loading saved Google Sheets URL from localStorage:', savedUrl);
         return savedUrl;
@@ -38,7 +39,10 @@ export const setCurrentSheetUrl = (url: string | null): void => {
       const cleanUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/edit`;
       
       // שמור גם בלוקל סטורג' וגם במשתנה הגלובלי
+      // שים לב - משתמש ב-googleSheetsUrl החדש וגם בשם הישן לתמיכה לאחור
+      localStorage.setItem('googleSheetsUrl', cleanUrl);
       localStorage.setItem('sheetsURL', cleanUrl);
+      
       currentSheetUrl = cleanUrl;
       
       console.log('Google Sheets URL updated:', cleanUrl);
@@ -47,18 +51,39 @@ export const setCurrentSheetUrl = (url: string | null): void => {
     }
   } else {
     // אם מתקבל null, איפוס הקישור הנוכחי
+    localStorage.removeItem('googleSheetsUrl');
     localStorage.removeItem('sheetsURL');
     currentSheetUrl = null;
   }
 };
 
+// Helper function to extract sheet ID from URL
+function extractSheetIdFromUrl(url: string): string | null {
+  const sheetIdMatch = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+  return sheetIdMatch ? sheetIdMatch[1] : null;
+}
+
 // Generic function to fetch data from Google Sheets via our proxy server
 export const fetchFromGoogleSheets = async (sheetName: string, customSheetUrl: string | null = null): Promise<any[]> => {
   try {
-    // פשוט תמיד להשתמש באותו ניתוב API
-    const baseUrl = `/api/sheets/${encodeURIComponent(sheetName)}`;
+    // Extract sheet ID if we have a custom URL
+    let sheetId: string | null = null;
+    if (customSheetUrl) {
+      sheetId = extractSheetIdFromUrl(customSheetUrl);
+    } else if (currentSheetUrl) {
+      sheetId = extractSheetIdFromUrl(currentSheetUrl);
+    }
+    
+    // פשוט תמיד להשתמש באותו ניתוב API - אבל עם שני אופציות
+    let baseUrl = `/api/sheets/${encodeURIComponent(sheetName)}`;
+    
+    // אם יש לנו מזהה גיליון, נשתמש בו כפרמטר בקישור
+    if (sheetId) {
+      baseUrl += `?sheetId=${sheetId}`;
+    }
     
     // Create headers object with custom sheet URL if provided
+    // (תמיכה לאחור במקרה שהשרת לא תומך בפרמטר sheetId)
     const headers: HeadersInit = {};
     
     // אם נשלח קישור מותאם אישית, השתמש בו

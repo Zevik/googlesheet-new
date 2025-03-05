@@ -24,26 +24,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { sheetName } = req.params;
       
-      // חובה לספק כתובת לגיליון
+      // אפשרות לקבל מזהה גיליון ישירות כפרמטר בבקשה
+      const querySheetId = req.query.sheetId as string;
+      
+      // חובה לספק כתובת לגיליון או מזהה גיליון ישיר
       const customSheetUrl = req.headers['x-sheet-url'] as string;
       
-      // בדיקה שהתקבלה כתובת תקינה
-      if (!customSheetUrl) {
+      let sheetId: string | null = null;
+      
+      // אם התקבל מזהה גיליון ישירות בפרמטר - נשתמש בו
+      if (querySheetId) {
+        sheetId = querySheetId;
+      } 
+      // אחרת ננסה לחלץ מזהה מהכתובת שהתקבלה בכותרת
+      else if (customSheetUrl) {
+        // חילוץ מזהה הגיליון מהכתובת
+        const extractedId = extractSheetId(customSheetUrl);
+        if (!extractedId) {
+          return res.status(400).json({ 
+            error: 'Invalid Google Sheets URL format: ' + customSheetUrl
+          });
+        }
+        
+        // שימוש במזהה שחולץ
+        sheetId = extractedId;
+      } else {
         return res.status(400).json({ 
-          error: 'Missing required header: x-sheet-url. No default sheet is available.' 
+          error: 'Missing required header: x-sheet-url or query parameter: sheetId' 
         });
       }
-      
-      // חילוץ מזהה הגיליון מהכתובת
-      const extractedId = extractSheetId(customSheetUrl);
-      if (!extractedId) {
-        return res.status(400).json({ 
-          error: 'Invalid Google Sheets URL format: ' + customSheetUrl
-        });
-      }
-      
-      // שימוש במזהה שחולץ
-      const sheetId = extractedId;
       
       const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
       

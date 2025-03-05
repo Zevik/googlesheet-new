@@ -7,17 +7,24 @@ import NotFound from "@/pages/not-found";
 import FolderPage from "@/pages/[folder]/[page]";
 import Home from "@/pages/index";
 import Settings from "@/pages/settings";
+import Main from "@/pages/main";
 
 function Router() {
   return (
-    <Layout>
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/settings" component={Settings} />
-        <Route path="/:folder/:page" component={FolderPage} />
-        <Route component={NotFound} />
-      </Switch>
-    </Layout>
+    <Switch>
+      <Route path="/main" component={Main} />
+      
+      <Route>
+        <Layout>
+          <Switch>
+            <Route path="/" component={Home} />
+            <Route path="/settings" component={Settings} />
+            <Route path="/:folder/:page" component={FolderPage} />
+            <Route component={NotFound} />
+          </Switch>
+        </Layout>
+      </Route>
+    </Switch>
   );
 }
 
