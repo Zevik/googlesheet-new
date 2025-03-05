@@ -8,6 +8,8 @@ import { Card, CardContent } from '@/components/ui/card';
 const FolderPage: React.FC = () => {
   const [match, params] = useRoute<{ folder: string; page: string }>('/:folder/:page');
   const [location] = useLocation();
+  
+  // נקבל את כל הפונקציות והנתונים בשימוש אחד של useGoogleSheets
   const { 
     getFolderBySlug, 
     getPageBySlug, 
@@ -18,6 +20,11 @@ const FolderPage: React.FC = () => {
     errors,
     getSetting
   } = useGoogleSheets();
+  
+  // קבל את הגדרות הסגנון כדי שנוכל להשתמש בהן בהמשך
+  const headingColor = getSetting('headingColor') || '#333333';
+  const contentSpacing = getSetting('contentSpacing') || '24px';
+  const pageWidth = getSetting('pageWidth') || '80%';
   
   // גלילה לראש העמוד כשמשתנה ה-URL
   useEffect(() => {
@@ -88,7 +95,7 @@ const FolderPage: React.FC = () => {
       return filteredContent;
     }
     return [];
-  }, [page, allContent]);
+  }, [page, allContent, getPageContent]);
   
   const contentLoading = isLoading;
   
@@ -206,17 +213,12 @@ const FolderPage: React.FC = () => {
     
     // בדוק אם יש התאמה בין כותרת העמוד לכותרת הבלוק הראשון
     return firstBlockTitle === pageTitleLower || 
-           // גם אם הכותרות לא זהות לגמרי, אבל הבלוק הראשון הוא כותרת ברמה 1, עדיף להראות אותו
-           ((firstBlock.heading_level === 'h1' || firstBlock.heading_level === '1') && isFirstBlockTitle);
+          // גם אם הכותרות לא זהות לגמרי, אבל הבלוק הראשון הוא כותרת ברמה 1, עדיף להראות אותו
+          ((firstBlock.heading_level === 'h1' || firstBlock.heading_level === '1') && isFirstBlockTitle);
   };
   
   // בדיקה אם צריך להציג את כותרת העמוד או לא
   const hasH1TitleAsFirstBlock = shouldHideTitleHeader();
-
-  // קבל את הגדרות הסגנון
-  const headingColor = getSetting('headingColor') || '#333333';
-  const contentSpacing = getSetting('contentSpacing') || '24px';
-  const pageWidth = getSetting('pageWidth') || '80%';
 
   // אם יש כותרת h1 כבלוק הראשון, לא נציג את כותרת הדף (למניעת כפילות)
   return (
