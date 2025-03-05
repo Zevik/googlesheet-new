@@ -58,7 +58,9 @@ export const useGoogleSheets = () => {
 
   // Filter menu items by active status and sort by display order
   const activeMenuItems = mainMenu
-    .filter((item: MainMenuItem) => item.active === 'yes')
+    .filter((item: MainMenuItem) => 
+      // תומך ב-1 או 'yes' או true כמצב פעיל
+      item.active === 'yes' || item.active === 1 || item.active === '1' || item.active === true)
     .sort((a: MainMenuItem, b: MainMenuItem) => a.display_order - b.display_order);
 
   // Get page content by page ID
