@@ -1,11 +1,11 @@
 [build]
   # Simple build command that prepares our server file
-  command = "npm run build && mkdir -p dist/functions && cp server/functions/server.js dist/functions/ && npm install node-fetch@2 --no-save && echo 'Build completed successfully'"
-  publish = "dist/public"
+  command = "npm run build && npm run db:push"
+  publish = "dist"
   ignore_warnings = true
 
 [functions]
-  directory = "dist/functions"
+  directory = "dist"
 
 # Force Node.js 18.x for compatibility
 [build.environment]
@@ -16,7 +16,7 @@
 # Two simple redirects
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/server/api/:splat"
+  to = "/.netlify/functions/server/:splat"
   status = 200
 
 [[redirects]]

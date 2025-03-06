@@ -12,47 +12,40 @@ import { MainMenuItem, Page, ContentBlock, Setting, Template } from '@/lib/types
 import { useEffect, useState } from 'react';
 
 // Hook to fetch and access all Google Sheets data
-export const useGoogleSheets = () => {
+export const useGoogleSheets = (siteId?: string) => {
   const queryClient = useQueryClient();
   const [customSheetUrl, setCustomSheetUrl] = useState<string | null>(null);
   
-  // Load custom sheet URL from localStorage on initial render
-  useEffect(() => {
-    const storedUrl = localStorage.getItem('sheetsURL');
-    if (storedUrl) {
-      // וידוא שהמשתנה הגלובלי והמשתנה המקומי מסונכרנים
-      setCurrentSheetUrl(storedUrl); // עדכון המשתנה הגלובלי
-      setCustomSheetUrl(storedUrl);  // עדכון המשתנה המקומי בהוק
-    }
-  }, []);
+  // אין יותר טעינה מ-localStorage
+  // במקום זאת, ה-URL יגיע מהפרמטר siteId או מהמסד נתונים
   
   // Fetch main menu
   const { data: mainMenu = [], isLoading: isMenuLoading, error: menuError } = useQuery({
-    queryKey: ['main_menu', customSheetUrl],
+    queryKey: ['main_menu', customSheetUrl, siteId],
     queryFn: () => fetchMainMenu(customSheetUrl)
   });
 
   // Fetch pages
   const { data: pages = [], isLoading: isPagesLoading, error: pagesError } = useQuery({
-    queryKey: ['pages', customSheetUrl],
+    queryKey: ['pages', customSheetUrl, siteId],
     queryFn: () => fetchPages(customSheetUrl)
   });
 
   // Fetch content
   const { data: content = [], isLoading: isContentLoading, error: contentError } = useQuery({
-    queryKey: ['content', customSheetUrl],
+    queryKey: ['content', customSheetUrl, siteId],
     queryFn: () => fetchContent(customSheetUrl)
   });
 
   // Fetch settings
   const { data: settings = [], isLoading: isSettingsLoading, error: settingsError } = useQuery({
-    queryKey: ['settings', customSheetUrl],
+    queryKey: ['settings', customSheetUrl, siteId],
     queryFn: () => fetchSettings(customSheetUrl)
   });
 
   // Fetch templates
   const { data: templates = [], isLoading: isTemplatesLoading, error: templatesError } = useQuery({
-    queryKey: ['templates', customSheetUrl],
+    queryKey: ['templates', customSheetUrl, siteId],
     queryFn: () => fetchTemplates(customSheetUrl)
   });
 
@@ -147,6 +140,17 @@ export const useGoogleSheets = () => {
     window.location.reload();
   };
 
+  // פונקציה לעדכון ה-URL של הגיליון
+  const updateSheetUrl = (url: string | null) => {
+    if (url) {
+      setCurrentSheetUrl(url);
+      setCustomSheetUrl(url);
+    } else {
+      setCurrentSheetUrl(null);
+      setCustomSheetUrl(null);
+    }
+  };
+
   return {
     mainMenu: activeMenuItems,
     pages,
@@ -163,7 +167,8 @@ export const useGoogleSheets = () => {
     currentSheetUrl: customSheetUrl,
     isLoading,
     hasError,
-    errors
+    errors,
+    updateSheetUrl, // הוספת פונקציה חדשה לעדכון ה-URL
   };
 };
 

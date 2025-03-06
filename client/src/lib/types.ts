@@ -91,3 +91,33 @@ export interface BreadcrumbItem {
 export interface PageWithContent extends Page {
   content: ContentBlock[];
 }
+
+// הוספת טיפוס לאתר
+export interface SiteInfo {
+  id: number;
+  siteId: string;
+  name: string;
+  description?: string;
+  sheetUrl: string;
+  createdAt: string;
+  updatedAt: string;
+  isActive: boolean;
+  createdBy?: number;
+}
+
+// טיפוס ליצירת אתר חדש
+export interface CreateSiteRequest {
+  siteId: string;
+  name: string;
+  description?: string;
+  sheetUrl: string;
+  isActive?: boolean;
+}
+
+// טיפוס לעדכון אתר קיים
+export interface UpdateSiteRequest {
+  name?: string;
+  description?: string;
+  sheetUrl?: string;
+  isActive?: boolean;
+}

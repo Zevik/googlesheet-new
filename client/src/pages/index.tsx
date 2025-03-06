@@ -1,103 +1,79 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
-import { Card, CardContent } from '@/components/ui/card';
-import useGoogleSheets from '@/hooks/useGoogleSheets';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import useSites from '@/hooks/useSites';
 
 const Home: React.FC = () => {
   const [location] = useLocation();
-  const { 
-    mainMenu, 
-    getSetting, 
-    getFolderPages,
-    isLoading, 
-    hasError, 
-    errors 
-  } = useGoogleSheets();
+  const { sites, isSitesLoading } = useSites();
   
   // גלילה לראש העמוד כשמשתנה ה-URL
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    // עדכון כותרת הדף מההגדרות
-    document.title = getSetting('siteName') || '';
-  }, [location, getSetting]);
-
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-10 w-3/4 mb-6" />
-        <Skeleton className="h-4 w-full mb-2" />
-        <Skeleton className="h-4 w-5/6 mb-6" />
-        <Skeleton className="h-64 w-full rounded-lg mb-6" />
-        <Skeleton className="h-64 w-full rounded-lg" />
-      </div>
-    );
-  }
-
-  if (hasError) {
-    return (
-      <Card className="bg-white rounded-lg shadow-sm">
-        <CardContent className="p-6">
-          <div className="flex items-center mb-4">
-            <span className="material-icons text-error mr-2">error</span>
-            <h2 className="text-xl font-medium text-neutral-800">שגיאה בטעינת נתונים</h2>
-          </div>
-          <div className="text-sm text-neutral-500">
-            <p>חלה שגיאה בעת טעינת נתונים מגוגל שיטס. אנא נסה שוב מאוחר יותר.</p>
-            <pre className="bg-neutral-50 p-2 rounded mt-2 text-xs overflow-x-auto">
-              {errors.map(error => error?.message).join('\n')}
-            </pre>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+    // עדכון כותרת הדף
+    document.title = 'אתרי Google Sheets';
+  }, [location]);
 
   return (
     <div className="space-y-8">
-      {/* כותרת הראשית הוסרה כי היא מופיעה כבר בכותרת העליונה */}
-
-      {/* כותרת הקטגוריות מגיעה מהתוכן בגיליון */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {mainMenu.map(folder => {
-          const folderPages = getFolderPages(folder.id);
+      <Card>
+        <CardHeader>
+          <CardTitle>ברוכים הבאים לאתרי Google Sheets</CardTitle>
+          <CardDescription>
+            צור אתרים דינמיים המבוססים על גיליונות Google Sheets
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="mb-4">
+            מערכת זו מאפשרת לך ליצור אתרים דינמיים המבוססים על גיליונות Google Sheets.
+            כל אתר מקושר לגיליון Google Sheets משלו, וכל שינוי בגיליון משתקף באתר באופן אוטומטי.
+          </p>
+          <div className="flex space-x-4 mb-8">
+            <Button asChild>
+              <Link href="/admin">ניהול אתרים</Link>
+            </Button>
+          </div>
           
-          return (
-            <Card key={folder.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-start mb-2">
-                  <span className="material-icons text-primary mr-2">folder</span>
-                  <h3 className="text-xl font-medium text-neutral-800">{folder.folder_name}</h3>
-                </div>
-                <p className="text-neutral-500 mb-4">{folder.short_description}</p>
-                
-                {folderPages.length > 0 && (
-                  <div className="mt-4">
-                    <ul className="space-y-1">
-                      {folderPages.slice(0, 3).map(page => (
-                        <li key={page.id}>
-                          <Link 
-                            href={`/${folder.slug}/${page.slug}`}
-                            className="text-primary hover:underline flex items-center"
-                          >
-                            <span className="material-icons text-sm mr-1">description</span>
-                            {page.page_name}
-                          </Link>
-                        </li>
-                      ))}
-                      {folderPages.length > 3 && (
-                        <li className="text-neutral-500 text-sm">
-                          ו־{folderPages.length - 3} עמודים נוספים...
-                        </li>
-                      )}
-                    </ul>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+          <h2 className="text-xl font-semibold mb-4">האתרים שלנו</h2>
+          
+          {isSitesLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <Card key={i}>
+                  <CardContent className="p-6">
+                    <Skeleton className="h-6 w-3/4 mb-2" />
+                    <Skeleton className="h-4 w-full mb-4" />
+                    <Skeleton className="h-10 w-1/3" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : sites.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-lg text-gray-500 mb-4">אין אתרים להצגה</p>
+              <Button asChild>
+                <Link href="/admin">צור אתר חדש</Link>
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {sites.filter(site => site.isActive).map((site) => (
+                <Card key={site.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-6">
+                    <h3 className="text-xl font-medium mb-2">{site.name}</h3>
+                    <p className="text-gray-500 mb-4">{site.description || 'אין תיאור'}</p>
+                    <Button asChild>
+                      <Link href={`/sites/${site.siteId}`}>כניסה לאתר</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

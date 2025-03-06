@@ -10,23 +10,8 @@ import {
 import { queryClient } from './queryClient';
 
 // שמירת הקישור הנוכחי לגיליון גוגל
-// טעינה התחלתית מהלוקל סטורג'
-let currentSheetUrl: string | null = (() => {
-  try {
-    // בדיקה אם אנחנו בסביבת דפדפן (יש לוקל סטורג')
-    if (typeof localStorage !== 'undefined') {
-      // עדיפות לקבלת URLs מהניהול החדש (googleSheetsUrl)
-      const savedUrl = localStorage.getItem('googleSheetsUrl') || localStorage.getItem('sheetsURL');
-      if (savedUrl) {
-        console.log('Loading saved Google Sheets URL from localStorage:', savedUrl);
-        return savedUrl;
-      }
-    }
-  } catch (e) {
-    console.error('Error accessing localStorage:', e);
-  }
-  return null;
-})();
+// אין יותר טעינה מהלוקל סטורג'
+let currentSheetUrl: string | null = null;
 
 // פונקציה להגדרת הקישור הנוכחי לגיליון גוגל
 export const setCurrentSheetUrl = (url: string | null): void => {
@@ -38,11 +23,7 @@ export const setCurrentSheetUrl = (url: string | null): void => {
       const sheetId = sheetIdMatch[1];
       const cleanUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/edit`;
       
-      // שמור גם בלוקל סטורג' וגם במשתנה הגלובלי
-      // שים לב - משתמש ב-googleSheetsUrl החדש וגם בשם הישן לתמיכה לאחור
-      localStorage.setItem('googleSheetsUrl', cleanUrl);
-      localStorage.setItem('sheetsURL', cleanUrl);
-      
+      // שמירה רק במשתנה הגלובלי, לא בלוקל סטורג'
       currentSheetUrl = cleanUrl;
       
       console.log('Google Sheets URL updated:', cleanUrl);
@@ -50,9 +31,6 @@ export const setCurrentSheetUrl = (url: string | null): void => {
       console.error('Invalid Google Sheets URL format:', url);
     }
   } else {
-    // אם מתקבל null, איפוס הקישור הנוכחי
-    localStorage.removeItem('googleSheetsUrl');
-    localStorage.removeItem('sheetsURL');
     currentSheetUrl = null;
   }
 };
@@ -370,4 +348,12 @@ export const getPageContent = async (pageId: string): Promise<ContentBlock[]> =>
     console.error('Error fetching page content:', error);
     return [];
   }
+};
+
+// פונקציה לחילוץ מזהה הגיליון מה-URL
+export const extractSheetId = (url: string): string | null => {
+  if (!url) return null;
+  
+  const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  return match ? match[1] : null;
 };
