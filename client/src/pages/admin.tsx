@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'wouter';
+import { useLocation } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,7 +14,7 @@ import { CreateSiteRequest, UpdateSiteRequest } from '@/lib/types';
 
 const AdminPage: React.FC = () => {
   const { toast } = useToast();
-  const [, navigate] = useNavigate();
+  const [, navigate] = useLocation();
   const { sites, isSitesLoading, createSite, updateSite, deleteSite } = useSites();
   
   // מצב לטופס יצירת אתר חדש
