@@ -10,6 +10,8 @@
 # Force Node.js 18.x for compatibility
 [build.environment]
   NODE_VERSION = "18"
+  # Explicitly disable Next.js plugin
+  NETLIFY_NEXT_PLUGIN_SKIP = "true"
 
 # Two simple redirects
 [[redirects]]
